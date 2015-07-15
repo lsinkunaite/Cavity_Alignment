@@ -1,0 +1,22 @@
+l laser 1 0 n0
+gauss g1 laser n0 8.47m -2158.28
+
+s sarm 2158.28 n0 n1
+bs bs1 1 0 0 0 n1 n2 dump dump
+attr bs1 xbeta 1u
+
+% m itm 0.211 0.789 0 n1 n2
+% attr itm xbeta 1u
+
+pd pow n2
+%ad ad00 0 0 0 n2
+%ad ad10 1 0 0 n2
+%ad ad20 2 0 0 n2
+%ad ad30 3 0 0 n2
+%ad ad40 4 0 0 n2
+
+maxtem 10
+% xaxis bs1 xbeta lin 1u 100u 100
+% xaxis itm xbeta lin 0 100u 100
+
+noxaxis
