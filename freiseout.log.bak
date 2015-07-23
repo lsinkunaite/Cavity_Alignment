@@ -1,0 +1,15 @@
+
+------------------------------------------------------------------------
+                     FINESSE v2.0               (build v2.0-21-g3c2d315)
+       o_.-=.        Frequency domain INterferomEter Simulation SoftwarE
+      (\'".\|        19.05.2014         http://www.gwoptics.org/finesse/
+      .>' (_--.      
+   _=/d   ,^\        Input file freiseout.kat,
+  ~~ \)-'   '        Output file freiseout.out,
+     / |             Gnuplot file freiseout.gnu 
+    '  '                                        Fri Jul 17 14:15:12 2015
+------------------------------------------------------------------------
+** couldn't open Init file 'kat.ini', using default values.
+ 'noxaxis' has been set, ignoring all other xaxis commands
+ 
+ writing matlab/python/gnuplot batch files...

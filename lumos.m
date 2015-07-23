@@ -14,11 +14,13 @@ close all;
 
 finesse_filename='freise'; % Finesse filename w/o extension
 finesse_filepath='/home/laura/Finesse2.0/Misalignment/kat'; % Path to kat.ini
+code_path='/home/laura/Finesse2.0/Misalignment/';
 
 % Misalignment angle
 theta_from=0; theta_to=0.00001; theta_step=0.0000002;
+alphaITM = (theta_from:theta_step:theta_to);
 
-maxTEM=10; % # of modes to be analysed: maxTEM+1
+maxTEM=2; % # of modes to be analysed: maxTEM+1
 poly_degree_plot=8; % Degree of polynomial fit for plotting
 poly_degree_fit=10; % Degree of polynomial fit for calculations
 % Uniqueness condition for poly-fit
@@ -38,29 +40,38 @@ R_etm = 2241.54;
 
 % Deleting old files
 for output_file=0:(maxTEM)
-    if exist(sprintf('fitting_HG%s0.txt',num2str(output_file)), 'file')
-        delete(sprintf('fitting_HG%s0.txt',num2str(output_file)));
+    if exist(sprintf('Fitting/fitting_HG%s0.txt',num2str(output_file)), 'file')
+        delete(sprintf('Fitting/fitting_HG%s0.txt',num2str(output_file)));
     end
 end
+  
+%     % Tilting angle
+%     theta_from=0; theta_to=0.00001; theta_step=0.0000002;
+%     alphaITM = (theta_from:theta_step:theta_to);
+alpha=[]; % 2*theta / alpha0
+a=[]; % Beam waist radius
+xvar=[]; % xvar = abs | (a / w0) + i(alpha / alpha0) |
+p=zeros((maxTEM+1), (poly_degree_plot+1));
+TEMmatrix=zeros(length(alphaITM), (maxTEM+1));
+
 
 % Distance to the mirror
-L_from=2200.00; L_to=10000.00; L_step=100.00;
+L_from=2200.00; L_to=2500.00; L_step=100.00;
+xvar_L=zeros((((L_to-L_from)/L_step)+1)*(maxTEM+1), length(alphaITM));
+power_L=zeros(length(alphaITM),(((L_to-L_from)/L_step)+1)*(maxTEM+1));
+
+L_itr = 0;
 for L = L_from:L_step:L_to
+    L_itr = L_itr+1;
+        
     if (L ~= tL)
         R_itm = (L-tL)*(1+power((pi*(power(w0,2))/(lambda*(L-tL))),2));
     else
         R_itm = 99999999999;
     end
+
     % Divergence angle
     alpha0 = (power((lambda/pi),.5))*(power((abs((R_etm+R_itm-(2*tL)))),.5))/(power((abs(tL*(R_etm-tL)*(R_itm-tL)*(R_etm+R_itm-tL))),.25));
-
-    % Tilting angle
-    alphaITM = (theta_from:theta_step:theta_to);
-    alpha=[]; % 2*theta / alpha0
-    a=[]; % Beam waist radius
-    xvar=[]; % xvar = abs | (a / w0) + i(alpha / alpha0) |
-    p=zeros((maxTEM+1), (poly_degree_plot+1));
-    TEMmatrix=zeros(length(alphaITM), (maxTEM+1));
 
     %% Adds higher-order TEM modes to Finesse script
 
@@ -74,6 +85,7 @@ for L = L_from:L_step:L_to
         alpha(j) = alphaITM(j) * 2 / alpha0; % alpha/alpha0
         a(j) = alphaITM(j) * (L-tL) / w0; % a/w0
         xvar(j) = power((power(alpha(j),2) + power(a(j),2)),.5);
+        
 
         % Generates HG modes
         for ii=0:maxTEM
@@ -116,11 +128,18 @@ for L = L_from:L_step:L_to
         fclose(fFIT_mode);
         
         % Tests goodness-of-fit
-%         f(k,:)=polyval(p(k,:),xvar');
-%         T = table(xvar',powerMatrix(:,k),(f(k,:))',(powerMatrix(:,k)-(f(k,:))'),'VariableNames',{'X','Y','Fit','FitError'});
+    %     f(k,:)=polyval(p(k,:),xvar');
+    %     T = table(xvar',powerMatrix(:,k),(f(k,:))',(powerMatrix(:,k)-(f(k,:))'),'VariableNames',{'X','Y','Fit','FitError'});
     %     results_filename = sprintf('%s%s%i%s',fitting_path, results_filename1, k, results_filename2);
     %     writetable(T,results_filename,'Delimiter',' ');
 
+    %xvar_L(L_itr+(k-1),:)=xvar;
+    %power_L(:,L_itr+(k-1))=powerMatrix(:,1);
+        
+        xvar_L((k+((((L_to-L_from)/L_step))*(L_itr-1))),:)=xvar;
+        power_L(:,(k+((((L_to-L_from)/L_step))*(L_itr-1))))=powerMatrix(:,k);     
+   
+ 
     %     % Plots the power and poly-fit for each HG-mode
     %     figure_file = figure;
     %     figure_filename = sprintf('%s%i%s',results_filename1, k, figure_filename2);
@@ -132,9 +151,10 @@ for L = L_from:L_step:L_to
     %     xlabel('$${i}\frac{\alpha}{\alpha_0} + \frac{a}{w_0}$$','interpreter','latex');
     %     ylabel('Power [W]');
     %     title(sprintf('Power distribution of HG_{%d}_0 mode',k-1));
-    %     saveas(figure_file, sprintf('%s%s',fitting_path, figure_filename));
+    %     saveas(figure_file, sprintf('%s%s',fitting_path, figure_filename));     
     end
-
+    
+    
     %% Plots power distribution for higher-order HG-modes
 
     % figure;
@@ -151,8 +171,25 @@ for L = L_from:L_step:L_to
     %     legend_string{ii+1}=num2str(ii-1);
     % end
     % set(legend(cellstr(strcat('HG_{',legend_string,'}_0'))), 'location', 'NorthEastOutside');
+    fitting_legend_string{L_itr}=num2str(L);
 end
 
-% Audio announcement of the ending
-load handel;
-sound(y,Fs);
+%% Plotting
+
+for plotting_step=1:(maxTEM+1)
+    figure(plotting_step);
+    for step_int=plotting_step:(maxTEM+1):((((L_to-L_from)/L_step)+1)*(maxTEM+1))
+        plot((xvar_L((step_int),:)),(power_L(:,step_int)));
+        hold on;
+    end
+    
+    xlabel('$${i}\frac{\alpha}{\alpha_0} + \frac{a}{w_0}$$','interpreter','latex');
+    ylabel('Power [W]');
+    title(sprintf('Power distribution of HG_{%d}_0 mode',plotting_step-1));
+    grid on;
+    set(legend(cellstr(strcat('L=',fitting_legend_string))), 'location', 'NorthEastOutside');
+end
+
+
+% audio_announcement(); % Audio announcement
+% email_result(fitting_path,L_from,L_to,maxTEM,code_path); % Emails fitting results
