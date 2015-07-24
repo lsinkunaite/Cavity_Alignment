@@ -1,0 +1,6 @@
+l laser 1 0 n1
+gauss g1 laser n1 8.47m -2158.28
+
+m bs1 1 0 0 n2 n3
+pd pow n3
+noxaxis
