@@ -136,32 +136,19 @@ for L = L_from:L_step:L_to
         fclose(fFIT_mode);
         
         % Tests goodness-of-fit
-    %     f(k,:)=polyval(p(k,:),xvar');
+        f(k,:)=polyval(p(k,:),xvar');
     %     T = table(xvar',powerMatrix(:,k),(f(k,:))',(powerMatrix(:,k)-(f(k,:))'),'VariableNames',{'X','Y','Fit','FitError'});
     %     results_filename = sprintf('%s%s%i%s',fitting_path, results_filename1, k, results_filename2);
     %     writetable(T,results_filename,'Delimiter',' ');
 
     %xvar_L(L_itr+(k-1),:)=xvar;
     %power_L(:,L_itr+(k-1))=powerMatrix(:,1);
-        
-        %xvar_L((k+((((L_to-L_from)/L_step))*(L_itr-1))),:)=xvar;
-        %power_L(:,(k+((((L_to-L_from)/L_step))*(L_itr-1))))=powerMatrix(:,k);     
+            
         xvar_L((k+(maxTEM+1)*(L_itr-1)),:)=xvar;
         power_L(:,(k+(maxTEM+1)*(L_itr-1)))=powerMatrix(:,k);
         
- 
-    %     % Plots the power and poly-fit for each HG-mode
-    %     figure_file = figure;
-    %     figure_filename = sprintf('%s%i%s',results_filename1, k, figure_filename2);
-    %     figure_axes=axes('Parent', figure_file);
-    %     hold(figure_axes,'all');
-    %     plot(xvar, powerMatrix(:,k), 'x-');
-    %     hold on;
-    %     plot(xvar, f(k,:),'r--');
-    %     xlabel('$${i}\frac{\alpha}{\alpha_0} + \frac{a}{w_0}$$','interpreter','latex');
-    %     ylabel('Power [W]');
-    %     title(sprintf('Power distribution of HG_{%d}_0 mode',k-1));
-    %     saveas(figure_file, sprintf('%s%s',fitting_path, figure_filename));     
+        % Plots the power and poly-fit for each HG-mode
+        % power_fit_plot(results_filename1,figure_filename2,fitting_path,k,powerMatrix,xvar,f);
     end
     
     
