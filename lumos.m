@@ -12,7 +12,9 @@
 clear all;
 close all;
 
-finesse_filename='freise'; % Finesse filename w/o extension
+%finesse_filename='freise'; % Finesse filename w/o extension
+finesse_filename_m='freise_m';
+finesse_filename_bs='freise_bs';
 finesse_filepath='/home/laura/Finesse2.0/Misalignment/kat'; % Path to kat.ini
 code_path='/home/laura/Finesse2.0/Misalignment/';
 
@@ -49,6 +51,7 @@ a=[]; % Beam waist radius
 xvar=[]; % xvar = abs | (a / w0) + i(alpha / alpha0) |
 p=zeros((maxTEM+1), (poly_degree_plot+1));
 TEMmatrix=zeros(theta_bin, (maxTEM+1));
+TEMmatrix_m=zeros(theta_bin, (maxTEM+1));
 
 
 % Distance to the mirror
@@ -57,64 +60,79 @@ L_bin=2;
 L_from=tL; L_to=24400.00; L_step=(L_to-L_from)/L_bin;
 xvar_L=zeros((((L_to-L_from)/L_step)+1)*(maxTEM+1), theta_bin);
 power_L=zeros(theta_bin,(((L_to-L_from)/L_step)+1)*(maxTEM+1));
-
+power_L_m=zeros(theta_bin,(((L_to-L_from)/L_step)+1)*(maxTEM+1));
 
 L_itr = 0;
 for L = L_from:L_step:L_to
     L_itr = L_itr+1;
-    
+
     % Radius of curvature of bs/mirror
     if (L ~= tL)
         R_itm = (L-tL)*(1+power((pi*(power(w0,2))/(lambda*(L-tL))),2));
     else
         R_itm = 99999999999;
     end
-    
+
     % Divergence angle
     %alpha0 = (power((lambda/pi),.5))*(power((abs((R_etm+R_itm-(2*L)))),.5))/(power((abs(L*(R_etm-L)*(R_itm-L)*(R_etm+R_itm-L))),.25));
     alpha0 = (power((lambda/pi),.5))*(power((tL*(R_etm-tL)),(-.25)));
-    
+
     theta_constant=power((1+(power((alpha0/w0),2))*(power(L,2)-(2*L*tL)+power(tL,2))),(.5)); 
     theta_to=theta_to0/theta_constant; theta_from=theta_from0;
     theta_step=(theta_to-theta_from)/(theta_bin-1);
     alphaITM = (theta_from:theta_step:theta_to);
-    
-    
-    
-    %% Adds higher-order TEM modes to Finesse script
 
+
+
+    %% Adds higher-order TEM modes to Finesse script    
     for j = 1:length(alphaITM)
-        fID=fopen(strcat(finesse_filename,'kat.txt'), 'w');
+        %fID=fopen(strcat(finesse_filename,'kat.txt'), 'w');
+        fID=fopen(strcat(finesse_filename_bs,'kat.txt'), 'w');
+        fIDM=fopen(strcat(finesse_filename_m,'kat.txt'), 'w');
         fprintf(fID, 's sarm %f n0 n1\n', L);
+        fprintf(fIDM, 's sarm %f n1 n2\n', L);
         fprintf(fID, 'attr bs1 Rc %f\n', R_itm);
+        fprintf(fIDM, 'attr bs1 Rc %f\n', R_itm);
         fprintf(fID, 'attr bs1 xbeta %.12f\n', alphaITM(j));
-        fprintf(fID, 'maxtem %d\n', maxTEM);
-
+        fprintf(fIDM, 'attr bs1 xbeta %.12f\n', alphaITM(j));
+        fprintf(fID, 'maxtem %d\n', maxTEM);      
+        fprintf(fIDM, 'maxtem %d\n', maxTEM);
+        
         alpha(j) = alphaITM(j) * 2 / alpha0; % alpha/alpha0
         a(j) = alphaITM(j) * 2 * (L-tL) / w0; % a/w0
         xvar(j) = power((power(alpha(j),2) + power(a(j),2)),.5);
 
-        
+
         % Generates HG mode
         for ii=0:maxTEM
-            fprintf(fID, ['ad ad' num2str(ii) '0 ' num2str(ii) ' 0 0 n1\n']);
+            fprintf(fID, ['ad ad' int2str(ii) '0 ' int2str(ii) ' 0 0 n2\n']);
+            fprintf(fIDM, ['ad ad' int2str(ii) '0 ' int2str(ii) ' 0 0 n2\n']);
         end
         fclose(fID);
-        system(sprintf('cat %s.kat %skat.txt > %sout.kat', finesse_filename, finesse_filename, finesse_filename));
-        system(sprintf('%s %sout', finesse_filepath, finesse_filename));
-        results=load(strcat(finesse_filename,'out.out'));
+        fclose(fIDM);
+        
+        system(sprintf('cat %s.kat %skat.txt > %sout.kat', finesse_filename_bs, finesse_filename_bs, finesse_filename_bs));
+        system(sprintf('cat %s.kat %skat.txt > %sout.kat', finesse_filename_m, finesse_filename_m, finesse_filename_m));
+        system(sprintf('%s %sout', finesse_filepath, finesse_filename_bs));
+        system(sprintf('%s %sout', finesse_filepath, finesse_filename_m));
+        results=load(strcat(finesse_filename_bs,'out.out'));
+        results_m=load(strcat(finesse_filename_m,'out.out'));
         TEMmatrix(j, :)=results(1, 3:end); 
+        TEMmatrix_m(j, :)=results_m(1, 3:end);
     end
-
-
+    
+    
     %% Fitting with a predefined-order polynomial
 
     % Generates power matrix
     powerMatrix=zeros(length(alphaITM), maxTEM+1);
+    powerMatrix_m=zeros(length(alphaITM), maxTEM+1);
     for TEMorder=0:maxTEM
         powerMatrix(:,TEMorder+1) = TEMmatrix(:,TEMorder+1).^2;
+        powerMatrix_m(:,TEMorder+1) = TEMmatrix_m(:,TEMorder+1).^2;
     end
     totalpower=sum(powerMatrix, 2);
+    totalpower_m=sum(powerMatrix_m, 2);
 
     results_filename1 = 'fit_results_';
     results_filename2 = '.txt';
@@ -129,12 +147,12 @@ for L = L_from:L_step:L_to
             fprintf(fFIT, [num2str(polyfit(xvar',powerMatrix(:,k),poly_degree_array(l))) '\n']);
         end
         fclose(fFIT);
-        
+
         % Writes fitting data into separate files for each polynomial
         fFIT_mode=fopen(sprintf('%sfitting_HG%i0.txt',fitting_path,k-1),'at');
         fprintf(fFIT_mode, [num2str(L), ' ',num2str(polyfit(xvar',powerMatrix(:,k),poly_degree_array(length(poly_degree_array)))) '\n']);
         fclose(fFIT_mode);
-        
+
         % Tests goodness-of-fit
         f(k,:)=polyval(p(k,:),xvar');
     %     T = table(xvar',powerMatrix(:,k),(f(k,:))',(powerMatrix(:,k)-(f(k,:))'),'VariableNames',{'X','Y','Fit','FitError'});
@@ -143,24 +161,26 @@ for L = L_from:L_step:L_to
 
     %xvar_L(L_itr+(k-1),:)=xvar;
     %power_L(:,L_itr+(k-1))=powerMatrix(:,1);
-            
+
         xvar_L((k+(maxTEM+1)*(L_itr-1)),:)=xvar;
         power_L(:,(k+(maxTEM+1)*(L_itr-1)))=powerMatrix(:,k);
-        
+        power_L_m(:,(k+(maxTEM+1)*(L_itr-1)))=powerMatrix_m(:,k);
+
         % Plots the power and poly-fit for each HG-mode
         % power_fit_plot(results_filename1,figure_filename2,fitting_path,k,powerMatrix,xvar,f);
     end
-    
-    
+
+
     %% Plots power distribution for higher-order HG-modes
     % HG_modes_plot(xvar,totalpower,maxTEM,powerMatrix);
-    fitting_legend_string{L_itr}=num2str(L);
+    fitting_legend_string{(2*L_itr)-1}=num2str(L);
+    fitting_legend_string{L_itr*2}=num2str(L);
 end
 
 %% Plotting
 
 % Plots power for each HG mode for different bs positions
-power_distance_plot(maxTEM,L_to,L_from,L_step,xvar_L,power_L,fitting_legend_string);
+power_distance_plot(maxTEM,L_to,L_from,L_step,xvar_L,power_L,power_L_m,fitting_legend_string);
 
 
 % email_address='laura.sinkunaite@ligo-wa.caltech.edu';
