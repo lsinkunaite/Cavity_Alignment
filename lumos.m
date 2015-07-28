@@ -36,6 +36,7 @@ R_etm = 2241.54;
 % Deleting old files
 old_filename = 'Fitting/fitting_HG%s%s.txt';
 old_filename2 = 'Fitting/fitting_All_HG%s%s.txt';
+delete('Fitting/power_Table.txt');
 delete_old(maxTEM,old_filename);
 delete_old(maxTEM,old_filename2);
 
@@ -49,7 +50,7 @@ p=zeros((maxTEM+1), (poly_degree_plot+1));
 TEMmatrix=zeros(theta_bin,((maxTEM+2)*(maxTEM+1)/2));
 
 % Distance to the mirror
-L_bin=4;
+L_bin=1;
 %L_from=2200.00; L_to=12200.00; L_step=1000.00;
 L_from=tL; L_to=24400.00; L_step=(L_to-L_from)/L_bin;
 xvar_L=zeros((((L_to-L_from)/L_step)+1)*(maxTEM+1), theta_bin);
@@ -122,7 +123,10 @@ for L = L_from:L_step:L_to
     figure_filename2 = '.jpg';
     fFIT_filename = 'fit_match_';
     fFIT_All_filename = 'fitting_All_HG';
+    fTABLE_filename = 'power_Table';
     fitting_path = '/home/laura/Finesse2.0/Misalignment/Fitting/';
+    bash_filename1 = 'bash_test.sh';
+    bash_filename2 = 'step1.sh';
     
     for m_Order=0:maxTEM
         for n_Order=0:(m_Order)
@@ -131,13 +135,15 @@ for L = L_from:L_step:L_to
             % Writes fitting data into separate files for each polynomial
             fprintf(fFIT_All, [num2str(L), ' ',num2str(polyfit(xvar',TEMmatrix(:,Matrix_Index),poly_degree_array(length(poly_degree_array)))) '\n']);
             fclose(fFIT_All);
-            %system(['./bash_test.sh ' strcat(fitting_path,fFIT_All_filename,'*',results_filename2)]);
+            %LaTEX_Table(bash_filename1,strcat(fitting_path,fFIT_All_filename,'*',results_filename2));
             if (L == L_to)
-                system(['./step1.sh ' strcat(fitting_path,fFIT_All_filename,num2str(m_Order-n_Order),num2str(n_Order),results_filename2)]);
+                LaTEX_Table(bash_filename2,strcat(fitting_path,fFIT_All_filename,num2str(m_Order-n_Order),num2str(n_Order),results_filename2));
             end
         end
     end
     
+    % Prints out amplitude [TEMmatrix] or power [powerMatrix] coefficient table
+    % Coeff_Table(strcat(fitting_path,fTABLE_filename,results_filename2),xvar,powerMatrix,strcat(fitting_path,fTABLE_filename,results_filename2),bash_filename2);
     
     for k=1:(length(powerMatrix(1,:)))
         p(k,:)=polyfit(xvar',powerMatrix(:,k),poly_degree_plot);
