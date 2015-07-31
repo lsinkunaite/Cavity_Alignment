@@ -1,20 +1,16 @@
 l laser 1 0 n0
 gauss g1 laser n0 8.47m -2158.28
 
-% s sarm 2158.28 n0 n2
-% s sarm 3000 n0 n2
-%bs bs1 1 0 0 0 n2 n3 dump dump
-m bs1 1 0 0 n1 n2
-% attr bs1 xbeta 1u
-% attr bs1 Rc 999999999
+m etm 0.68 0.32 0 n0 n1
+% s sarm 4000 n1 n2
+m itm 0.011 0.989 0 n2 n3
 
-% m itm 0.211 0.789 0 n2 n3
-% attr itm xbeta 1u
+% attr etm r_ap 0.170065
+% attr itm r_ap 0.170035
 
-pd pow n2
+%attr etm Rc -2241.54
+%attr itm Rc 1939.3
 
-%maxtem 10
-% xaxis bs1 xbeta lin 1u 100u 100
-% xaxis itm xbeta lin 0 100u 100
-
+cav cav1 etm n1 itm n2
+pd pow n3
 noxaxis
