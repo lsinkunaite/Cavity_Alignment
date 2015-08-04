@@ -47,11 +47,12 @@ alpha=[]; % 2*theta / alpha0
 a=[]; % Beam waist radius
 xvar=[]; % xvar = abs | (a / w0) + i(alpha / alpha0) |
 p=zeros((maxTEM+1), (poly_degree_plot+1));
-TEMmatrix=zeros(theta_bin,theta_bin,((maxTEM+2)*(maxTEM+1)/2));
+%TEMmatrix=zeros(theta_bin,theta_bin,((maxTEM+2)*(maxTEM+1)/2));
+%TEMmatrix=zeros((power(theta_bin,2)),((maxTEM+1)*(maxTEM+1)/2));
+TEMmatrix=zeros(power(theta_bin,2),((maxTEM+1)*(maxTEM+2)/2));
 gouy_array=zeros(maxTEM+1,maxTEM+1);
 
 % Divergence angle
-%alpha0 = (power((lambda/pi),.5))*(power(((power((R_itm+R_etm-(2*L)),2))/(L*(R_etm-L)*(R_itm-L)*(R_itm+R_etm-L))),(.25)));
 alpha0 = (power((lambda/pi),.5))*(power((tL*(R_etm-tL)),(-.25)));
 
 % Misalignment angle
@@ -79,7 +80,8 @@ for j = 1:length(alphaITM)
         alpha(j,j_iter)=(R_etm*alphaETM(j_iter)+R_itm*alphaITM(j))/((R_etm+R_itm-L)*alpha0);
         k=(R_etm*alphaETM(j_iter)-R_itm*alphaITM(j))/(R_itm+R_etm-L);
         a(j,j_iter)=((R_itm*alphaITM(j))+(k*(R_etm-tL)))/w0; % a/w0
-        xvar(j,j_iter)=power((power(alpha(j,j_iter),2) + power(a(j,j_iter),2)),.5);
+        %xvar(j,j_iter)=power((power(alpha(j,j_iter),2) + power(a(j,j_iter),2)),.5);
+        xvar(((j-1)*theta_bin)+j_iter)=power((power(alpha(j,j_iter),2) + power(a(j,j_iter),2)),.5);
         
         %a(j) = alphaITM(j) * 2 * (L-tL) / w0; % a/w0
         %a(j,j_iter) = (alphaITM(j)*(L-tL)) + (alphaETM(j_iter)*tL);
@@ -99,10 +101,9 @@ for j = 1:length(alphaITM)
         system(sprintf('cat %s.kat %skat.txt > %sout.kat', finesse_filename, finesse_filename, finesse_filename));
         system(sprintf('%s %sout', finesse_filepath, finesse_filename));
         results=load(strcat(finesse_filename,'out.out'));
-        TEMmatrix(j,j_iter,:)=results(1, 3:end); 
+        %TEMmatrix(j,j_iter,:)=results(1, 3:end);
+        TEMmatrix((j-1)*theta_bin+j_iter,:)=results(1,3:end);
     end
-    %fprintf('##############################################alphaITM =%d',j)
-    
 end
 
 
@@ -117,21 +118,30 @@ powerMatrix=zeros(length(alphaITM),length(alphaETM),maxTEM+1);
 %         powerMatrix(:,TEMorder+1) = powerMatrix(:,TEMorder+1)+TEMmatrix(:,orderIndex+jj-1).^2;
 %     end
 % end
-for TEMorder=0:maxTEM
-    orderIndex=1+(TEMorder*(TEMorder+1)/2);
-    for jj=1:(TEMorder+1)
-        powerMatrix(:,:,TEMorder+1) = powerMatrix(:,:,TEMorder+1)+TEMmatrix(:,:,orderIndex+jj-1).^2;
-    end
-end
-totalpower=sum(powerMatrix, 2);
 
-for dim_iter=1:length(TEMmatrix(1,1,:))
+% for TEMorder=0:maxTEM
+%     orderIndex=1+(TEMorder*(TEMorder+1)/2);
+%     for jj=1:(TEMorder+1)
+%         powerMatrix(:,:,TEMorder+1) = powerMatrix(:,:,TEMorder+1)+TEMmatrix(:,:,orderIndex+jj-1).^2;
+%     end
+% end
+% totalpower=sum(powerMatrix, 2);
+
+
+%xvar_reshaped=reshape(xvar,[],1);
+dim_iter_tmp=size(TEMmatrix);
+%TEMmatrix_reshaped=reshape(TEMmatrix,[],(dim_iter_tmp(length(dim_iter_tmp))));
+for dim_iter=1:(dim_iter_tmp(length(dim_iter_tmp)))
+    %plot(xvar_reshaped(:,dim_iter),TEMmatrix_reshaped(:,dim_iter));
     figure;
-    surf(alphaITM,alphaETM,TEMmatrix(:,:,dim_iter).^2);
+    plot(xvar(:,dim_iter),TEMmatrix(:,dim_iter));
+    hold on;
 end
-xlabel('{\alpha_{ITM}}');
-ylabel('{\alpha_{ETM}}');
-zlabel('Power');
+
+
+%xlabel('{\alpha_{ITM}}');
+%ylabel('{\alpha_{ETM}}');
+%title('Power');
 
 % results_filename1 = 'fit_results_';
 % results_filename2 = '.txt';
