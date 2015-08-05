@@ -3,7 +3,7 @@ gauss g1 laser n0 8.47m -2158.28
 
 m etm 0.68 0.32 0 n0 n1
 % s sarm 4000 n1 n2
-m itm 0.011 0.989 0 n2 n3
+m itm 0.989 0.011 0 n2 n3
 
 % attr etm r_ap 0.170065
 % attr itm r_ap 0.170035
@@ -13,4 +13,5 @@ m itm 0.011 0.989 0 n2 n3
 
 cav cav1 etm n1 itm n2
 pd pow n3
-noxaxis
+%noxaxis
+xaxis etm phi lin 0 180 180
