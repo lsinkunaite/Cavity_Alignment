@@ -1,4 +1,4 @@
-function Ratio_Table(fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2)
+function [Ratio_Matrix] = Ratio_Table(fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2)
 % Prints relative ratios of power spectrum in a tabular form
     rTABLE=fopen(strcat(fitting_path,rTABLE_filename,results_filename2),'at');
     for Table_Iter_Row=1:size(Table_Matrix,1)
@@ -17,4 +17,5 @@ function Ratio_Table(fitting_path,rTABLE_filename,results_filename2,Table_Matrix
     end
     fclose(rTABLE);
     LaTEX_Table(bash_filename2,strcat(fitting_path,rTABLE_filename,results_filename2));
+    Ratio_Matrix=csvread(strcat(fitting_path,rTABLE_filename,results_filename2));
 end
