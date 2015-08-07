@@ -12,11 +12,11 @@
 clear all;
 close all;
 
-finesse_filename='freise'; % Finesse filename w/o extension
+finesse_filename='freise2'; % Finesse filename w/o extension
 finesse_filepath='/home/laurasinkunaite/Finesse2.0/Misalignment/kat'; % Path to kat.ini
 code_path='/home/laurasinkunaite/Finesse2.0/Misalignment/';
 
-maxTEM=7; % # of modes to be analysed: maxTEM+1
+maxTEM=5; % # of modes to be analysed: maxTEM+1
 poly_degree_plot=8; % Degree of polynomial fit for plotting
 poly_degree_fit=10; % Degree of polynomial fit for calculations
 
@@ -33,9 +33,9 @@ R_itm = 1939.3;
 % Deleting old files
 old_filename = 'Fitting/fitting_HG%s%s.txt';
 old_filename2 = 'Fitting/fitting_All_HG%s%s.txt';
-%delete('Fitting/power_Table.txt');
 delete_old(maxTEM,old_filename);
 delete_old(maxTEM,old_filename2);
+delete('/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/ratio_Table.txt');
 
 % Tilting angle theta
 %theta_from0=-0.00001; theta_to0=0.00001; theta_bin = 11;
@@ -46,10 +46,8 @@ a=[]; % Beam waist radius
 xvar=[]; % xvar = abs | (a / w0) + i(alpha / alpha0) |
 p=zeros((maxTEM+1), (poly_degree_plot+1));
 TEMmatrix=zeros(theta_bin*theta_bin,((maxTEM+2)*(maxTEM+1)/2));
-%gouy_array=zeros(maxTEM+1,maxTEM+1);
 
 alpha0 = (power((lambda/pi),.5))*(power((tL*(R_etm-tL)),(-.25)));
-
 
 
 theta_constant=power((1+(power((alpha0/w0),2))*(power(L,2)-(2*L*tL)+power(tL,2))),(.5)); 
@@ -58,12 +56,23 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-alphaITM0=0.000002242394; %alphaETM0=0.0000003579;
+alphaITM0=0.0000001; %alphaETM0=0.0000003579;
 alphaETM0=0;
 alpha=(R_etm*alphaETM0*2+R_itm*alphaITM0*2)/((R_etm+R_itm-L)*alpha0);
 k=(R_etm*alphaETM0*2-R_itm*alphaITM0*2)/(R_itm+R_etm-L);
 a=((R_itm*alphaITM0*2)+(k*(R_etm-tL)))/w0; % a/w0
 xvar=power((power(alpha,2) + power(a,2)),.5);
+
+fitting_path='/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/';
+fTABLE_filename='power_Table';
+rTABLE_filename='ratio_Table';
+results_filename2='.txt';
+bash_filename2 = 'step1.sh';
+% Relative ratios of power coeffic = abs | (a / w0) + i(alpha / alpha0) |
+p=zeros((maxTEM+1), (poly_degree_plot+1));
+TEMmatrix=zeros(theta_bin*theta_bin,((maxTEM+2)*(maxTEM+1)/2));
+Table_Matrix=csvread(strcat(fitting_path,fTABLE_filename,results_filename2));
+Ratio_Matrix=Ratio_Table(fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2);
 
 
 fID=fopen(strcat(code_path,finesse_filename,'kat.txt'), 'w');
@@ -75,14 +84,12 @@ fprintf(fID, 'attr etm xbeta %.12f\n', alphaETM0);
 fprintf(fID, 'maxtem %d\n', maxTEM);
 fclose(fID); % = abs | (a / w0) + i(alpha / alpha0) |
 
-
 system(sprintf('cat %s.kat %skat.txt > %sout.kat', finesse_filename, finesse_filename, finesse_filename));
 system(sprintf('%s %sout', finesse_filepath, finesse_filename));
 results=load(strcat(finesse_filename,'out.out'));
 xvar0(:,1)=results(1:end,1);
 totalpower0(:,1)=results(1:end,2);
-findpeaks(results(:,2));
-[pks,locs]=findpeaks(results(:,2)');
+[pks,locs]=findAllpeaks(results(:,2)');
 if (length(pks))>1
     r=0;
     for pkr_iter=1:(length(pks)-1)
@@ -109,3 +116,29 @@ plot(xvar0, totalpower0, 'r-');
 xlabel('ETM tuning [deg]');
 ylabel('Power [W]');
 title('Power distribution of different HG modes');
+
+comparison_Value=0.01;
+comparison_Index=0;
+comparison_Index2=0;
+% for pkr_Iter=1:length(pkr)
+%     for RatioRow_Iter=1:size(Ratio_Matrix,1)
+%         for RatioColumn_Iter=1:size(Ratio_Matrix,2)
+%             if (abs(pkr(pkr_Iter)-Ratio_Matrix(RatioRow_Iter,RatioColumn_Iter)))<=(comparison_Value*(pkr(pkr_Iter)))
+%                 comparison_Index=comparison_Index+1;
+%                 Output(comparison_Index)=RatioRow_Iter;
+%                 if pkr_Iter ~=length(pkr)
+%                     fprintf('******************************************Proceeding\n');
+%                     if (abs(pkr(pkr_Iter+1)-Ratio_Matrix(RatioRow_Iter,RatioColumn_Iter)))<=(comparison_Value*(pkr(pkr_Iter+1)))
+%                         comparison_Index2=comparison_Index2+1;
+%                         Output2(comparison_Index2)=RatioRow_Iter;
+%                         fprintf('******************************************************Test: passed****\n');
+%                     end
+%                 end
+%             end
+%         end
+%     end
+% end
+for pkr_Iter=1:length(pkr)
+    Inter_Matrix=((abs(pkr(pkr_Iter))-Ratio_Matrix)<=(comparison_Value*(pkr(pkr_Iter))));
+end
+        
