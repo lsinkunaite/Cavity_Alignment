@@ -58,9 +58,9 @@ alphaETM = (theta_from:theta_step:theta_to);
 
 alphaITM0=0.0000001; %alphaETM0=0.0000003579;
 alphaETM0=0;
-alpha=(R_etm*alphaETM0*2+R_itm*alphaITM0*2)/((R_etm+R_itm-L)*alpha0);
-k=(R_etm*alphaETM0*2-R_itm*alphaITM0*2)/(R_itm+R_etm-L);
-a=((R_itm*alphaITM0*2)+(k*(R_etm-tL)))/w0; % a/w0
+alpha=(R_etm*alphaETM0+R_itm*alphaITM0)/((R_etm+R_itm-L)*alpha0);
+k=(R_etm*alphaETM0-R_itm*alphaITM0)/(R_itm+R_etm-L);
+a=((R_itm*alphaITM0)+(k*(R_etm-tL)))/w0; % a/w0
 xvar=power((power(alpha,2) + power(a,2)),.5);
 
 fitting_path='/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/';
@@ -117,70 +117,7 @@ xlabel('ETM tuning [deg]');
 ylabel('Power [W]');
 title('Power distribution of different HG modes');
 
-comparison_Value=0.01;
-comparison_Index=0;
-comparison_Index2=0;
-% for pkr_Iter=1:length(pkr)
-%     for RatioRow_Iter=1:size(Ratio_Matrix,1)
-%         for RatioColumn_Iter=1:size(Ratio_Matrix,2)
-%             if (abs(pkr(pkr_Iter)-Ratio_Matrix(RatioRow_Iter,RatioColumn_Iter)))<=(comparison_Value*(pkr(pkr_Iter)))
-%                 comparison_Index=comparison_Index+1;
-%                 Output(comparison_Index)=RatioRow_Iter;
-%                 if pkr_Iter ~=length(pkr)
-%                     fprintf('******************************************Proceeding\n');
-%                     if (abs(pkr(pkr_Iter+1)-Ratio_Matrix(RatioRow_Iter,RatioColumn_Iter)))<=(comparison_Value*(pkr(pkr_Iter+1)))
-%                         comparison_Index2=comparison_Index2+1;
-%                         Output2(comparison_Index2)=RatioRow_Iter;
-%                         fprintf('******************************************************Test: passed****\n');
-%                     end
-%                 end
-%             end
-%         end
-%     end
-% end
-% for pkr_Iter=1:length(pkr)
-%     Inter_Matrix=((abs(pkr(pkr_Iter))-Ratio_Matrix)<=(comparison_Value*(pkr(pkr_Iter))));
-% end
 
-Misalignment=[];
-tol_Index=0.0006;
-% for Ratio_Iter=1:(size(Ratio_Matrix,1))
-%     if all(ismembertol(pkr,Ratio_Matrix(Ratio_Iter,:),tol_Index));
-%         %Misalignment=[Misalignment Ratio_Matrix(Ratio_Iter,1)];
-%         Misalignment=[Misalignment Ratio_Iter];
-%     end
-% end
-
-
-for Ratio_Iter=1:(size(Ratio_Matrix,1))
-    Empty_array=[];
-    for index_pkr=1:length(pkr)
-        for Ratio_Index=1:(size(Ratio_Matrix,1))
-            for Column_Index=1:(size(Ratio_Matrix,2))
-                for Pkr_Index=1:length(pkr)
-                    if (Ratio_Matrix(Ratio_Index,Column_Index)-pkr(Pkr_Index)<=0.1)
-                        Empty_array=[Empty_array (ismembertol(pkr(index_pkr),Ratio_Matrix(Ratio_Iter,:),tol_Index))];
-                    end
-                end
-            end
-        end
-    end
-    if all(Empty_array)
-        Misalignment=[Misalignment Ratio_Iter];
-        %Misalignment=[Misalignment (Ratio_Matrix(Ratio_Iter,1))];
-    end
-end
-
-% comp_Value=1;
-% for Ratio_Iter=1:(size(Ratio_Matrix,1))
-%     for Column_Index=1:(size(Ratio_Matrix,2))
-%         Empty_array=[];
-%         for pkr_Index=1:length(pkr)
-%             Empty_array=[Empty_array ((abs(pkr(pkr_Index)-Ratio_Matrix(Ratio_Iter,Column_Index)))<=(comp_Value*(pkr(pkr_Index))))];
-%         end
-%         if all(Empty_array)
-%             Misalignment=[Misalignment Ratio_Iter];
-%         end
-%     end
-% end
+tol_Index=0.006; % Tolerance index
+Misalignment_Array=Misalignment(tol_Index,Ratio_Matrix,pkr);
     
