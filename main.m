@@ -138,7 +138,49 @@ comparison_Index2=0;
 %         end
 %     end
 % end
-for pkr_Iter=1:length(pkr)
-    Inter_Matrix=((abs(pkr(pkr_Iter))-Ratio_Matrix)<=(comparison_Value*(pkr(pkr_Iter))));
+% for pkr_Iter=1:length(pkr)
+%     Inter_Matrix=((abs(pkr(pkr_Iter))-Ratio_Matrix)<=(comparison_Value*(pkr(pkr_Iter))));
+% end
+
+Misalignment=[];
+tol_Index=0.0006;
+% for Ratio_Iter=1:(size(Ratio_Matrix,1))
+%     if all(ismembertol(pkr,Ratio_Matrix(Ratio_Iter,:),tol_Index));
+%         %Misalignment=[Misalignment Ratio_Matrix(Ratio_Iter,1)];
+%         Misalignment=[Misalignment Ratio_Iter];
+%     end
+% end
+
+
+for Ratio_Iter=1:(size(Ratio_Matrix,1))
+    Empty_array=[];
+    for index_pkr=1:length(pkr)
+        for Ratio_Index=1:(size(Ratio_Matrix,1))
+            for Column_Index=1:(size(Ratio_Matrix,2))
+                for Pkr_Index=1:length(pkr)
+                    if (Ratio_Matrix(Ratio_Index,Column_Index)-pkr(Pkr_Index)<=0.1)
+                        Empty_array=[Empty_array (ismembertol(pkr(index_pkr),Ratio_Matrix(Ratio_Iter,:),tol_Index))];
+                    end
+                end
+            end
+        end
+    end
+    if all(Empty_array)
+        Misalignment=[Misalignment Ratio_Iter];
+        %Misalignment=[Misalignment (Ratio_Matrix(Ratio_Iter,1))];
+    end
 end
-        
+
+% comp_Value=1;
+% for Ratio_Iter=1:(size(Ratio_Matrix,1))
+%     for Column_Index=1:(size(Ratio_Matrix,2))
+%         Empty_array=[];
+%         for pkr_Index=1:length(pkr)
+%             Empty_array=[Empty_array ((abs(pkr(pkr_Index)-Ratio_Matrix(Ratio_Iter,Column_Index)))<=(comp_Value*(pkr(pkr_Index))))];
+%         end
+%         if all(Empty_array)
+%             Misalignment=[Misalignment Ratio_Iter];
+%         end
+%     end
+% end
+    
