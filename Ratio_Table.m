@@ -10,7 +10,7 @@ function [Ratio_Matrix] = Ratio_Table(pkr,fitting_path,rTABLE_filename,results_f
                 for Table_Iter2=(Table_Iter+1):size(Table_Matrix,2)
                     row_el2=Table_Matrix(Table_Iter_Row,Table_Iter2);
                     % Neighbourhood condition
-                    if ((row_el2-row_el)<=(length(pkr)))
+                    if ((Table_Iter2-Table_Iter)<=(length(pkr)))
                         T_Index_Iter=T_Index_Iter+1;
                         rTable_Matrix(T_Index_Iter)=row_el2/row_el;
                     end
