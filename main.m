@@ -56,11 +56,12 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-alphaITM0=0.0000001; %alphaETM0=0.0000003579;
-alphaETM0=0;
+alphaITM0=0.00000054; %alphaETM0=0.0000003579;
+alphaETM0=0.00000021;
 alpha=(R_etm*alphaETM0+R_itm*alphaITM0)/((R_etm+R_itm-L)*alpha0);
-k=(R_etm*alphaETM0-R_itm*alphaITM0)/(R_itm+R_etm-L);
-a=((R_itm*alphaITM0)+(k*(R_etm-tL)))/w0; % a/w0
+%k=(R_etm*alphaETM0-R_itm*alphaITM0)/(R_itm+R_etm-L);
+%a=((R_itm*alphaITM0)+(k*(R_etm-tL)))/w0; % a/w0
+a=((R_etm-tL)*(R_itm*alphaITM0)-(tL-L+R_itm)*(R_etm*alphaETM0))/((R_itm+R_etm-L)*w0);
 xvar=power((power(alpha,2) + power(a,2)),.5);
 
 fitting_path='/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/';
@@ -71,8 +72,6 @@ bash_filename2 = 'step1.sh';
 % Relative ratios of power coeffic = abs | (a / w0) + i(alpha / alpha0) |
 p=zeros((maxTEM+1), (poly_degree_plot+1));
 TEMmatrix=zeros(theta_bin*theta_bin,((maxTEM+2)*(maxTEM+1)/2));
-Table_Matrix=csvread(strcat(fitting_path,fTABLE_filename,results_filename2));
-Ratio_Matrix=Ratio_Table(fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2);
 
 
 fID=fopen(strcat(code_path,finesse_filename,'kat.txt'), 'w');
@@ -90,20 +89,13 @@ results=load(strcat(finesse_filename,'out.out'));
 xvar0(:,1)=results(1:end,1);
 totalpower0(:,1)=results(1:end,2);
 [pks,locs]=findAllpeaks(results(:,2)');
-if (length(pks))>1
-    r=0;
-    for pkr_iter=1:(length(pks)-1)
-        pkr_el=pks(pkr_iter);
-        loc_el=locs(pkr_iter);
-        for pkr_iter2=(pkr_iter+1):length(pks)
-            pkr_el2=pks(pkr_iter2);
-            loc_el2=locs(pkr_iter2);
-            r=r+1;
-            pkr(r)=pkr_el2/pkr_el;
-            locr(r)=loc_el2-loc_el;
-        end
-    end
+for pkr_iter=1:(length(pks))
+    ref_peak=max(pks);
+    pkr(pkr_iter)=(pks(pkr_iter))/ref_peak;
 end
+
+Table_Matrix=csvread(strcat(fitting_path,fTABLE_filename,results_filename2));
+Ratio_Matrix=Ratio_Table(pkr,fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2);
 
 z_R=(pi*(power(w0,2)))/lambda;
 gouy_array=zeros(1,maxTEM+1);            
@@ -120,4 +112,36 @@ title('Power distribution of different HG modes');
 
 tol_Index=0.006; % Tolerance index
 Misalignment_Array=Misalignment(tol_Index,Ratio_Matrix,pkr);
+
+% Distance_Vector=[];
+% for pkr_Iter=1:length(pkr)
+%     Min_Val=inf;
+%     for RRow_Index=1:(size(Ratio_Matrix,1))
+%         for RColumn_Index=1:(size(Ratio_Matrix,2))
+%             if ((abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter))) < Min_Val)
+%                 Min_Val=(abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter)));
+%             end
+%         end
+% 
+%     end
+%     Distance_Vector=[Distance_Vector Min_Val];
+% end
+
+Distance_Vector=[];
+for RRow_Index=1:(size(Ratio_Matrix,1))
+    Min_Val_Array=[];
+    for pkr_Iter=1:length(pkr)
+        Min_Val=inf;
+        for RColumn_Index=1:(size(Ratio_Matrix,2))
+            if ((abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter)))<Min_Val)
+                Min_Val=(abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter)));
+            end
+        end
+        Min_Val_Array=[Min_Val_Array Min_Val];
+    end
+    Distance_Vector(RRow_Index,:)=sqrt(sum(Min_Val_Array.^2));
+end
+Mis_Par=Ratio_Matrix(find(Distance_Vector==(min(Distance_Vector))),1);
+fprintf('Misalignment: calculated = %f, algorithm = %f\n',xvar,Mis_Par)
+fprintf('Row number=%d\n',find(Distance_Vector==(min(Distance_Vector))))
     
