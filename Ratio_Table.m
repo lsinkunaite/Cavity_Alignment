@@ -3,9 +3,9 @@ function [Ratio_Matrix] = Ratio_Table(pkr,fitting_path,rTABLE_filename,results_f
 % highest peak.
     rTABLE=fopen(strcat(fitting_path,rTABLE_filename,results_filename2),'at');
     for Table_Iter_Row=1:size(Table_Matrix,1)
-        Ref_el=max(Table_Matrix(Table_Iter_Row,:));
-        for Table_Iter_Column=1:size(Table_Matrix,2)
-            rTable_Matrix(Table_Iter_Column)=(Table_Matrix(Table_Iter_Row,Table_Iter_Column))/Ref_el;
+        Ref_el=max(Table_Matrix(Table_Iter_Row,2:end));
+        for Table_Iter_Column=1:(size(Table_Matrix,2)-1)
+            rTable_Matrix(Table_Iter_Column)=(Table_Matrix(Table_Iter_Row,Table_Iter_Column+1))/Ref_el;
         end
         fprintf(rTABLE, [num2str(Table_Matrix(Table_Iter_Row,1)) ' ' num2str(rTable_Matrix) '\n']);
     end
