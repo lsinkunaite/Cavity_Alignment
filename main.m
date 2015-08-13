@@ -103,7 +103,8 @@ Ratio_Matrix=Ratio_Table(pkr,fitting_path,rTABLE_filename,results_filename2,Tabl
 z_R=(pi*(power(w0,2)))/lambda;
 gouy_array=zeros(1,maxTEM+1);            
 for gouy_iter=0:maxTEM
-    gouy_array(gouy_iter+1)=(gouy_iter+1)*(atan(tL/z_R)-atan(-(L-tL)/z_R));
+    % Gouy phase shift in radians
+    gouy_array(gouy_iter+1)=(gouy_iter+1)*(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi;
 end
 
 figure;
@@ -112,46 +113,10 @@ xlabel('ETM tuning [deg]');
 ylabel('Power [W]');
 title('Power distribution of different HG modes');
 
-Distance_Vector=[];
-for RRow_Index=1:(size(Ratio_Matrix,1))
-    Min_Val_Array=[];
-    for pkr_Iter=1:length(pkr)
-        Min_Val=inf;
-        for RColumn_Index=2:(size(Ratio_Matrix,2))
-            if ((abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter)))<Min_Val)
-                Min_Val=(abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter)));
-            end
-        end
-        Min_Val_Array=[Min_Val_Array Min_Val];
-    end
-    Distance_Vector(RRow_Index,:)=sqrt(sum(Min_Val_Array.^2));
-end
-Mis_Par=Ratio_Matrix(find(Distance_Vector==(min(Distance_Vector))),1);
-fprintf('Misalignment: calculated = %f, algorithm = %f\n',xvar,Mis_Par)
-fprintf('Row number=%d\n',find(Distance_Vector==(min(Distance_Vector))))
-
-
-Mis_Row=0;
-Mis_Mode=0;
-Mis_Dist=inf;
-for RRow_Iter=1:(size(Ratio_Matrix,1))
-    for RColumn_Iter=1:(size(Ratio_Matrix,2)-length(sorted_pkr))
-        Dist=0;
-        for pkr_Iter2=1:length(sorted_pkr)
-            Dist=Dist+power(sorted_pkr(pkr_Iter2)-Ratio_Matrix(RRow_Iter,RColumn_Iter+pkr_Iter2),2);
-        end
-        if (power(Dist,.5)<Mis_Dist)
-            Mis_Dist=power(Dist,.5);
-            Mis_Row=RRow_Iter;
-            Mis_Mode=RColumn_Iter-1;
-        end
-    end
-end
-fprintf('Misalignment: calculated = %f, algorithm = %f\n',xvar,Ratio_Matrix(Mis_Row,1))
-fprintf('Row number = %d, mode number = %d\n',Mis_Row,Mis_Mode)
+% Calculates misalignment
+[Min_Dist,Mis_Row,Mis_Mode] = Misalignment(Ratio_Matrix,sorted_pkr,xvar);
 
 [c, index]= min(abs(Ratio_Matrix(:,1)-xvar));
 Ratio_Matrix(index,:)
-
 sorted_pkr
 Ratio_Matrix(Mis_Row,:)
