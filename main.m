@@ -94,6 +94,9 @@ for pkr_iter=1:(length(pks))
     pkr(pkr_iter)=(pks(pkr_iter))/ref_peak;
 end
 
+% Sorts peaks in a descending order, gives their locations in degrees
+[sorted_pks,sorted_locs] = Descend(pks,locs);
+
 Table_Matrix=csvread(strcat(fitting_path,fTABLE_filename,results_filename2));
 Ratio_Matrix=Ratio_Table(pkr,fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2);
 
@@ -110,42 +113,7 @@ ylabel('Power [W]');
 title('Power distribution of different HG modes');
 
 
-tol_Index=0.006; % Tolerance index
-Misalignment_Array=Misalignment(tol_Index,Ratio_Matrix,pkr);
-
-% Distance_Vector=[];
-% for pkr_Iter=1:length(pkr)
-%     Min_Val=inf;
-%     for RRow_Index=1:(size(Ratio_Matrix,1))
-%         for RColumn_Index=1:(size(Ratio_Matrix,2))
-%             if ((abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter))) < Min_Val)
-%                 Min_Val=(abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter)));
-%             end
-%         end
-% 
-%     end
-%     Distance_Vector=[Distance_Vector Min_Val];
-% end
-
-% Distance_Vector=[];
-% for RRow_Index=1:(size(Ratio_Matrix,1))
-%     Min_Val_Array=[];
-%     for pkr_Iter=1:length(pkr)
-%         Min_Val=inf;
-%         for RColumn_Index=1:(size(Ratio_Matrix,2))
-%             if ((abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter)))<Min_Val)
-%                 Min_Val=(abs((Ratio_Matrix(RRow_Index,RColumn_Index))-pkr(pkr_Iter)));
-%             end
-%         end
-%         Min_Val_Array=[Min_Val_Array Min_Val];
-%     end
-%     Distance_Vector(RRow_Index,:)=sqrt(sum(Min_Val_Array.^2));
-% end
-% Mis_Par=Ratio_Matrix(find(Distance_Vector==(min(Distance_Vector))),1);
-% fprintf('Misalignment: calculated = %f, algorithm = %f\n',xvar,Mis_Par)
-% fprintf('Row number=%d\n',find(Distance_Vector==(min(Distance_Vector))))
-    
-
+Distance_Vector=[];
 for RRow_Index=1:(size(Ratio_Matrix,1))
     Min_Val_Array=[];
     for pkr_Iter=1:length(pkr)
