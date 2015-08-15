@@ -56,8 +56,7 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-alphaITM0=0.00000054; %alphaETM0=0.0000003579;
-alphaETM0=0.00000021;
+alphaITM0=0.000000854; alphaETM0=0.00000001;
 alpha=(R_etm*alphaETM0+R_itm*alphaITM0)/((R_etm+R_itm-L)*alpha0);
 %k=(R_etm*alphaETM0-R_itm*alphaITM0)/(R_itm+R_etm-L);
 %a=((R_itm*alphaITM0)+(k*(R_etm-tL)))/w0; % a/w0
@@ -95,7 +94,9 @@ for pkr_iter=1:(length(pks))
 end
 
 % Sorts peaks in a descending order, gives their locations in degrees
-[sorted_pkr,sorted_locs] = Descend(pkr,locs);
+[L2R_pkr,L2R_locs] = LeftToRight(pkr,locs);
+[R2L_pkr,R2L_locs] = RightToLeft(pkr,locs);
+
 
 Table_Matrix=csvread(strcat(fitting_path,fTABLE_filename,results_filename2));
 Ratio_Matrix=Ratio_Table(pkr,fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2);
@@ -106,6 +107,26 @@ for gouy_iter=0:maxTEM
     % Gouy phase shift in radians
     gouy_array(gouy_iter+1)=(gouy_iter+1)*(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi;
 end
+gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi;
+
+
+[L2R_pkr_gouy,L2R_locs_gouy]=Gouy_Left2Right(pkr,locs,gouy_shift);
+[R2L_pkr_gouy,R2L_locs_gouy]=Gouy_Right2Left(pkr,locs,gouy_shift);
+
+
+% [max_pk,max_loc]=max(pkr);
+% gouy_peaks(1)=max_pk;
+% tol=15;
+% for i=2:length(locs)
+%     if (max_loc+gouy_shift)>180
+%         idx=find(abs(locs(i)-(max_loc+gouy_shift-180))<tol);
+%         gouy_peaks(i)=pkr(idx);
+%     else
+%         idx=find(abs(locs(i)-(max_loc+gouy_shift))<tol);
+%         gouy_peaks(i)=pkr(idx);
+%     end
+% end
+    
 
 figure;
 plot(xvar0, totalpower0, 'r-');
@@ -114,9 +135,39 @@ ylabel('Power [W]');
 title('Power distribution of different HG modes');
 
 % Calculates misalignment
-[Min_Dist,Mis_Row,Mis_Mode] = Misalignment(Ratio_Matrix,sorted_pkr,xvar);
+[Dist_L2R,Row_L2R,Mode_L2R] = Misalignment(Ratio_Matrix,L2R_pkr,xvar);
+[Dist_R2L,Row_R2L,Mode_R2L] = Misalignment(Ratio_Matrix,R2L_pkr,xvar);
+
+[Dist_L2R_gouy,Row_L2R_gouy,Mode_L2R_gouy]=Misalignment(Ratio_Matrix,L2R_pkr_gouy,xvar);
+[Dist_R2L_gouy,Row_R2L_gouy,Mode_R2L_gouy]=Misalignment(Ratio_Matrix,R2L_pkr_gouy,xvar);
+
+
+if (Dist_L2R < Dist_R2L)
+    Mis_Par=Ratio_Matrix(Row_L2R,1);
+    Mis_Row=Row_L2R;Mis_Mode=Mode_L2R;
+else
+    Mis_Par=Ratio_Matrix(Row_R2L,1);
+    Mis_Row=Row_R2L;Mis_Mode=Mode_R2L;
+end
+fprintf('Misalignment: calculated = %f, algorithm = %f\n',xvar,Mis_Par);
+fprintf('Row number = %d, mode number = %d\n',Mis_Row,Mis_Mode);
+
+
+if (Dist_L2R_gouy < Dist_R2L_gouy)
+    Mis_Par_gouy=Ratio_Matrix(Row_L2R_gouy,1);
+    Mis_Row_gouy=Row_L2R_gouy;Mis_Mode_gouy=Mode_L2R_gouy;
+else
+    Mis_Par_gouy=Ratio_Matrix(Row_R2L_gouy,1);
+    Mis_Row_gouy=Row_R2L_gouy;Mis_Mode_gouy=Mode_R2L_gouy;
+end
+fprintf('Misalignment [Gouy]: calculated = %f, algorithm = %f\n',xvar,Mis_Par_gouy);
+fprintf('Row number [Gouy] = %d, mode number = %d\n',Mis_Row_gouy,Mis_Mode_gouy);
+
 
 [c, index]= min(abs(Ratio_Matrix(:,1)-xvar));
+pkr
 Ratio_Matrix(index,:)
-sorted_pkr
+L2R_pkr
 Ratio_Matrix(Mis_Row,:)
+L2R_pkr_gouy
+Ratio_Matrix(Mis_Row_gouy,:)
