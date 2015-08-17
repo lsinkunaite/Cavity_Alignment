@@ -2,13 +2,17 @@ function Check_Transmittance(Ratio_Matrix,index,gouy_shift)
 % Checks power transmittance and plots it against tuning
     R_etm=0.68; T_etm=0.32;
     R_itm=0.989; T_itm=0.011;
+    r_e=sqrt(R_etm);
+    r_i=sqrt(R_itm);
 
     %[c, index]= min(abs(Ratio_Matrix(:,1)-xvar));
     
     T1_comb=0;
     for i=2:length(Ratio_Matrix(index,:))
+    %for i=2:2
         for Phi=0:180
-            T1(Phi+1)=T_etm*T_itm/(power(abs(1-(R_etm*R_itm*exp(-1i*(Phi+(gouy_shift*(i-2)))))),2));
+            % (-ve) Gouy phase flips the sign
+            T1(Phi+1)=T_etm*T_itm/(power(abs(1-(sqrt(R_etm*R_itm)*exp(-1i*(Phi-(gouy_shift*(i-2)))*2*pi/180))),2));
         end
         T1_comb=T1_comb+(Ratio_Matrix(index,i))*T1;
     end
