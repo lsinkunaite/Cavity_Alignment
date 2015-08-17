@@ -94,43 +94,16 @@ for pkr_iter=1:(length(pks))
     pkr(pkr_iter)=(pks(pkr_iter))/ref_peak;
 end
 
-% Sorts peaks in a descending order, gives their locations in degrees
-[L2R_pkr,L2R_locs] = LeftToRight(pkr,locs);
-[R2L_pkr,R2L_locs] = RightToLeft(pkr,locs);
-
 
 Table_Matrix=csvread(strcat(fitting_path,fTABLE_filename,results_filename2));
 Ratio_Matrix=Ratio_Table(pkr,fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2);
 
-z_R=(pi*(power(w0,2)))/lambda;
-gouy_array=zeros(1,maxTEM+1);            
-for gouy_iter=0:maxTEM
-    % Gouy phase shift in radians
-    gouy_array(gouy_iter+1)=(gouy_iter+1)*(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi;
-end
-gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi;
+z_R=(pi*(power(w0,2)))/lambda; % Rayleigh range
+gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi; % Gouy phase shift
 
-
-[L2R_pkr_gouy,L2R_locs_gouy]=Gouy_Left2Right(pkr,locs,gouy_shift);
-[R2L_pkr_gouy,R2L_locs_gouy]=Gouy_Right2Left(pkr,locs,gouy_shift);
-
-
+% Sorts peaks in an ascending order, gives their locations in degrees
 [pkr_gouy,locs_gouy]=Gouy_Sort(pkr,locs,gouy_shift);
 
-
-% [max_pk,max_loc]=max(pkr);
-% gouy_peaks(1)=max_pk;
-% tol=15;
-% for i=2:length(locs)
-%     if (max_loc+gouy_shift)>180
-%         idx=find(abs(locs(i)-(max_loc+gouy_shift-180))<tol);
-%         gouy_peaks(i)=pkr(idx);
-%     else
-%         idx=find(abs(locs(i)-(max_loc+gouy_shift))<tol);
-%         gouy_peaks(i)=pkr(idx);
-%     end
-% end
-    
 
 figure;
 plot(xvar0, totalpower0, 'r-');
