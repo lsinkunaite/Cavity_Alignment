@@ -16,7 +16,7 @@ finesse_filename='freise2'; % Finesse filename w/o extension
 finesse_filepath='/home/laurasinkunaite/Finesse2.0/Misalignment/kat'; % Path to kat.ini
 code_path='/home/laurasinkunaite/Finesse2.0/Misalignment/';
 
-maxTEM=5; % # of modes to be analysed: maxTEM+1
+maxTEM=10; % # of modes to be analysed: maxTEM+1
 poly_degree_plot=8; % Degree of polynomial fit for plotting
 poly_degree_fit=10; % Degree of polynomial fit for calculations
 
@@ -56,7 +56,8 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-alphaITM0=0.000000854; alphaETM0=0.00000001;
+%alphaITM0=0.000000854; alphaETM0=0.000002401;
+alphaITM0=1e-6;alphaETM0=5e-7;
 alpha=(R_etm*alphaETM0+R_itm*alphaITM0)/((R_etm+R_itm-L)*alpha0);
 %k=(R_etm*alphaETM0-R_itm*alphaITM0)/(R_itm+R_etm-L);
 %a=((R_itm*alphaITM0)+(k*(R_etm-tL)))/w0; % a/w0
@@ -114,6 +115,9 @@ gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi;
 [R2L_pkr_gouy,R2L_locs_gouy]=Gouy_Right2Left(pkr,locs,gouy_shift);
 
 
+[pkr_gouy,locs_gouy]=Gouy_Sort(pkr,locs,gouy_shift);
+
+
 % [max_pk,max_loc]=max(pkr);
 % gouy_peaks(1)=max_pk;
 % tol=15;
@@ -140,17 +144,19 @@ title('Power distribution of different HG modes');
 
 [Dist_L2R_gouy,Row_L2R_gouy,Mode_L2R_gouy]=Misalignment(Ratio_Matrix,L2R_pkr_gouy,xvar);
 [Dist_R2L_gouy,Row_R2L_gouy,Mode_R2L_gouy]=Misalignment(Ratio_Matrix,R2L_pkr_gouy,xvar);
+ 
+[Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,pkr_gouy,locs_gouy);
+Mis_Par_Gouy_True=Ratio_Matrix(Row_Gouy,1);
 
 
 if (Dist_L2R < Dist_R2L)
     Mis_Par=Ratio_Matrix(Row_L2R,1);
+
     Mis_Row=Row_L2R;Mis_Mode=Mode_L2R;
 else
     Mis_Par=Ratio_Matrix(Row_R2L,1);
     Mis_Row=Row_R2L;Mis_Mode=Mode_R2L;
 end
-fprintf('Misalignment: calculated = %f, algorithm = %f\n',xvar,Mis_Par);
-fprintf('Row number = %d, mode number = %d\n',Mis_Row,Mis_Mode);
 
 
 if (Dist_L2R_gouy < Dist_R2L_gouy)
@@ -160,14 +166,26 @@ else
     Mis_Par_gouy=Ratio_Matrix(Row_R2L_gouy,1);
     Mis_Row_gouy=Row_R2L_gouy;Mis_Mode_gouy=Mode_R2L_gouy;
 end
-fprintf('Misalignment [Gouy]: calculated = %f, algorithm = %f\n',xvar,Mis_Par_gouy);
-fprintf('Row number [Gouy] = %d, mode number = %d\n',Mis_Row_gouy,Mis_Mode_gouy);
 
 
 [c, index]= min(abs(Ratio_Matrix(:,1)-xvar));
+    Mis_Row=Row_R2L;Mis_Mode=Mode_R2L;
 pkr
 Ratio_Matrix(index,:)
 L2R_pkr
 Ratio_Matrix(Mis_Row,:)
 L2R_pkr_gouy
 Ratio_Matrix(Mis_Row_gouy,:)
+Ratio_Matrix(Mis_Row,:)
+% pkr_gouy
+% Ratio_Matrix(Row_Gouy,:)
+
+fprintf('Misalignment: calculated = %f, Gouy algorithm = %f\n',xvar,Mis_Par_Gouy_True);
+fprintf('Row number = %d, mode number = %d\n',Row_Gouy,Mode_Gouy);
+fprintf('Misalignment: calculated = %f, L2RvsR2L algorithm = %f\n',xvar,Mis_Par);
+fprintf('Row number = %d, mode number = %d\n',Mis_Row,Mis_Mode);
+fprintf('Misalignment [Gouy]: calculated = %f, L2RvsR2L Gouy algorithm = %f\n',xvar,Mis_Par_gouy);
+fprintf('Row number [Gouy] = %d, mode number = %d\n',Mis_Row_gouy,Mis_Mode_gouy);
+
+
+Check_Transmittance(Ratio_Matrix,index,gouy_shift);
