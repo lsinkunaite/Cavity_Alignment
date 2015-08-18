@@ -16,7 +16,7 @@ finesse_filename='freise2'; % Finesse filename w/o extension
 finesse_filepath='/home/laurasinkunaite/Finesse2.0/Misalignment/kat'; % Path to kat.ini
 code_path='/home/laurasinkunaite/Finesse2.0/Misalignment/';
 
-maxTEM=10; % # of modes to be analysed: maxTEM+1
+maxTEM=12; % # of modes to be analysed: maxTEM+1
 poly_degree_plot=8; % Degree of polynomial fit for plotting
 poly_degree_fit=10; % Degree of polynomial fit for calculations
 
@@ -58,6 +58,7 @@ alphaETM = (theta_from:theta_step:theta_to);
 
 alphaITM0=0.000000854; alphaETM0=0.000002401;
 %alphaITM0=1e-6;alphaETM0=5e-7;
+%alphaITM0=1e-6;alphaETM0=5e-6;
 alpha=(R_etm*alphaETM0+R_itm*alphaITM0)/((R_etm+R_itm-L)*alpha0);
 %k=(R_etm*alphaETM0-R_itm*alphaITM0)/(R_itm+R_etm-L);
 %a=((R_itm*alphaITM0)+(k*(R_etm-tL)))/w0; % a/w0
@@ -101,9 +102,6 @@ Ratio_Matrix=Ratio_Table(pkr,fitting_path,rTABLE_filename,results_filename2,Tabl
 z_R=(pi*(power(w0,2)))/lambda; % Rayleigh range
 gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi; % Gouy phase shift
 
-% Sorts peaks in an ascending order, gives their locations in degrees
-[pkr_gouy,locs_gouy]=Gouy_Sort(pkr,locs,gouy_shift);
-
 
 figure;
 plot(xvar0, totalpower0, 'r-');
@@ -111,17 +109,26 @@ xlabel('ETM tuning [deg]');
 ylabel('Power [W]');
 title('Power distribution of different HG modes');
 
-% Calculates misalignment
-[Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,pkr_gouy,locs_gouy);
-Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1);
+% Sorts peaks in an ascending order, gives their locations in degrees
+[pkr_gouy,locs_gouy]=Gouy_Sort(pkr,locs,gouy_shift);
+[pkr_gouy_old,locs_gouy_old]=Gouy_Sort_Old(pkr,locs,gouy_shift);
 
+% Calculates misalignment
+[Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,pkr_gouy);
+Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1);
+[Dist_Gouy_Old,Row_Gouy_Old,Mode_Gouy_Old]=Misalignment(Ratio_Matrix,pkr_gouy_old);
+Mis_Par_Gouy_Old=Ratio_Matrix(Row_Gouy_Old,1);
 
 [c, index]= min(abs(Ratio_Matrix(:,1)-xvar));
 Ratio_Matrix(index,:)
 pkr_gouy
 Ratio_Matrix(Row_Gouy,:)
+pkr_gouy_old
+Ratio_Matrix(Row_Gouy_Old,:)
 
 fprintf('Misalignment: calculated = %f, Gouy algorithm = %f\n',xvar,Mis_Par_Gouy);
 fprintf('Row number = %d, mode number = %d\n',Row_Gouy,Mode_Gouy);
+fprintf('Misalignment: calculated = %f, [Old] Gouy algorithm = %f\n',xvar,Mis_Par_Gouy_Old);
+fprintf('Row number = %d, mode number = %d\n',Row_Gouy_Old,Mode_Gouy_Old);
 
 Check_Transmittance(Ratio_Matrix,index,gouy_shift);

@@ -8,28 +8,33 @@ function [gouy_peaks,gouy_locs] = Gouy_Sort(pkr,locs,gouy_shift)
     for i=2:(length(locs)+1)
         [c_L2R1,index_L2R1]=min(abs(mod(locs-(gouy_locs(end)+gouy_shift),180)));
         [c_L2R2,index_L2R2]=min(abs(mod((gouy_locs(end)+gouy_shift)-locs+180,180)));
-        if (c_L2R1 < c_L2R2)
+        if (c_L2R1 <= c_L2R2)
             c_L2R=c_L2R1; index_L2R=index_L2R1;
         else
             c_L2R=c_L2R2; index_L2R=index_L2R2;
         end
         
-        [c_R2L1,index_R2L1]=min(abs(mod(locs-(gouy_locs(1)-gouy_shift),180)));
-        [c_R2L2,index_R2L2]=min(abs(mod((gouy_locs(1)+gouy_shift)-locs+180,180)));
-        if (c_R2L1 < c_R2L2)
+        [c_R2L1,index_R2L1]=min(abs(locs-mod((gouy_locs(1)-gouy_shift),180)));
+        [c_R2L2,index_R2L2]=min(abs(mod((gouy_locs(1)-gouy_shift),180)-locs+180));
+%         
+%         fprintf('R2L1 = %f, locs(R2L1) = %f, R2L2 = %f, locs(R2L2)= %f\n',c_R2L1,locs(index_R2L1),c_R2L2, locs(index_R2L2));
+%         fprintf('L2R1 = %f, locs(L2R1) = %f, L2R2 = %f, locs(L2R2)= %f\n',c_L2R1,locs(index_L2R1),c_L2R2, locs(index_L2R2));
+%         gouy_locs
+%         
+        if (c_R2L1 <= c_R2L2)
             c_R2L=c_R2L1; index_R2L=index_R2L1;
         else
             c_R2L=c_R2L2; index_R2L=index_R2L2;
         end
         
-        if (c_R2L < c_L2R)
+        if (c_R2L <= c_L2R)
             index=index_R2L;
             gouy_locs(i)=locs(index);
             gouy_peaks(i)=pkr(index);
             pkr(find(pkr==(gouy_peaks(i))))=[];
             locs(find(locs==(gouy_locs(i))))=[];
             gouy_locs=circshift(gouy_locs,1,2);
-            gouy_peaks=circshift(gouy_peaks,1,2);min(abs(mod((gouy_locs(1)+gouy_shift)-locs+180,180)));
+            gouy_peaks=circshift(gouy_peaks,1,2);
         else
             index=index_L2R;
             gouy_locs(i)=locs(index);
