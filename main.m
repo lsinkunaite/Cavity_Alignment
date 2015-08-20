@@ -56,13 +56,15 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-alphaITM0=0.000000854; alphaETM0=0.000002401;
+%alphaITM0=0.000000854; alphaETM0=0.000002401;
+alphaITMX=1e-6;alphaETMX=5e-7;
+%alphaITMY=2e-6;alphaETMY=4.9e-7;
 %alphaITM0=1e-6;alphaETM0=5e-7;
 %alphaITM0=1e-6;alphaETM0=5e-6;
-alpha=(R_etm*alphaETM0+R_itm*alphaITM0)/((R_etm+R_itm-L)*alpha0);
+alpha=(R_etm*alphaETMX+R_itm*alphaITMX)/((R_etm+R_itm-L)*alpha0);
 %k=(R_etm*alphaETM0-R_itm*alphaITM0)/(R_itm+R_etm-L);
 %a=((R_itm*alphaITM0)+(k*(R_etm-tL)))/w0; % a/w0
-a=((R_etm-tL)*(R_itm*alphaITM0)-(tL-L+R_itm)*(R_etm*alphaETM0))/((R_itm+R_etm-L)*w0);
+a=((R_etm-tL)*(R_itm*alphaITMX)-(tL-L+R_itm)*(R_etm*alphaETMX))/((R_itm+R_etm-L)*w0);
 xvar=power((power(alpha,2) + power(a,2)),.5);
 
 fitting_path='/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/';
@@ -79,8 +81,10 @@ fID=fopen(strcat(code_path,finesse_filename,'kat.txt'), 'w');
 fprintf(fID, 's sarm %f n1 n2\n', L);
 fprintf(fID, 'attr itm Rc %f\n', R_itm);
 fprintf(fID, 'attr etm Rc %f\n', -R_etm);
-fprintf(fID, 'attr itm xbeta %.12f\n', alphaITM0);
-fprintf(fID, 'attr etm xbeta %.12f\n', alphaETM0);
+fprintf(fID, 'attr itm xbeta %.12f\n', alphaITMX);
+fprintf(fID, 'attr etm xbeta %.12f\n', alphaETMX);
+%fprintf(fID, 'attr itm ybeta %.12f\n', alphaITMY);
+%fprintf(fID, 'attr etm ybeta %.12f\n', alphaETMY);
 fprintf(fID, 'maxtem %d\n', maxTEM);
 fclose(fID); % = abs | (a / w0) + i(alpha / alpha0) |
 
