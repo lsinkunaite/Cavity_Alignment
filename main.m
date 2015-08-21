@@ -41,8 +41,10 @@ delete('/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/ratio_Table.txt');
 %theta_from0=-0.00001; theta_to0=0.00001; theta_bin = 11;
 theta_from0=0; theta_to0=0.00001; theta_bin=11;
 
-alpha=[]; % 2*theta / alpha0
-a=[]; % Beam waist radius
+alpha_X=[]; % 2*theta / alpha0
+alpha_Y=[];
+a_X=[]; % Transverse displacement
+a_Y=[];
 xvar=[]; % xvar = abs | (a / w0) + i(alpha / alpha0) |
 p=zeros((maxTEM+1), (poly_degree_plot+1));
 TEMmatrix=zeros(theta_bin*theta_bin,((maxTEM+2)*(maxTEM+1)/2));
@@ -56,16 +58,22 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-%alphaITM0=0.000000854; alphaETM0=0.000002401;
-alphaITMX=1e-6;alphaETMX=5e-7;
-%alphaITMY=2e-6;alphaETMY=4.9e-7;
+alphaITMX=0.000000854; alphaETMX=0.000002401;
+%alphaITMX=1e-6;alphaETMX=5e-7;
+alphaITMY=2e-6;alphaETMY=4.9e-7;
+%alphaITMY=0;alphaETMY=0;
 %alphaITM0=1e-6;alphaETM0=5e-7;
 %alphaITM0=1e-6;alphaETM0=5e-6;
-alpha=(R_etm*alphaETMX+R_itm*alphaITMX)/((R_etm+R_itm-L)*alpha0);
+%alpha=(R_etm*alphaETMX+R_itm*alphaITMX)/((R_etm+R_itm-L)*alpha0);
+alpha_X=(R_etm*alphaETMX+R_itm*alphaITMX)/((R_etm+R_itm-L)*alpha0);
+alpha_Y=(R_etm*alphaETMY+R_itm*alphaITMY)/((R_etm+R_itm-L)*alpha0);
 %k=(R_etm*alphaETM0-R_itm*alphaITM0)/(R_itm+R_etm-L);
 %a=((R_itm*alphaITM0)+(k*(R_etm-tL)))/w0; % a/w0
-a=((R_etm-tL)*(R_itm*alphaITMX)-(tL-L+R_itm)*(R_etm*alphaETMX))/((R_itm+R_etm-L)*w0);
-xvar=power((power(alpha,2) + power(a,2)),.5);
+%a=((R_etm-tL)*(R_itm*alphaITMX)-(tL-L+R_itm)*(R_etm*alphaETMX))/((R_itm+R_etm-L)*w0);
+a_X=((R_etm-tL)*(R_itm*alphaITMX)-(tL-L+R_itm)*(R_etm*alphaETMX))/((R_itm+R_etm-L)*w0);
+a_Y=((R_etm-tL)*(R_itm*alphaITMY)-(tL-L+R_itm)*(R_etm*alphaETMY))/((R_itm+R_etm-L)*w0);
+%xvar=power((power(alpha,2) + power(a,2)),.5);
+xvar= power(((power(alpha_X,2)+power(alpha_Y,2))+(power(a_X,2)+power(a_Y,2))),.5);
 
 fitting_path='/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/';
 fTABLE_filename='power_Table';
