@@ -51,18 +51,19 @@ alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
 %alphaITMX=8.54e-6; alphaETMX=2.401e-6;
-alphaITM_P=1e-6;alphaETM_P=9e-7;
-alphaITM_Y=2e-6;alphaETM_Y=4.9e-7;
-%alphaITM_Y=0;alphaETM_Y=0;
+%alphaITM_P=1e-6;alphaETM_P=9e-7;
+alphaETM_P=9e-7;
+alphaITM_P=alphaETM_P*(-R_etm/R_itm);
+%alphaITM_P=alphaETM_P*(tL-L+R_itm)*(R_etm/R_itm)/(R_etm-tL);
+%alphaITM_Y=2e-6;alphaETM_Y=4.9e-7;
+alphaETM_Y=4.9e-7;
+alphaITM_Y=alphaETM_Y*(R_etm/R_itm)*(tL-L+R_itm)/(R_etm-tL);
+%alphaITM_Y=alphaETM_Y*(-R_etm/R_itm);
 
 alpha_P=(R_etm*alphaETM_P+R_itm*alphaITM_P)/((R_etm+R_itm-L)*alpha0);
 alpha_Y=(R_etm*alphaETM_Y+R_itm*alphaITM_Y)/((R_etm+R_itm-L)*alpha0);
-%k=(R_etm*alphaETM0-R_itm*alphaITM0)/(R_itm+R_etm-L);
-%a=((R_itm*alphaITM0)+(k*(R_etm-tL)))/w0; % a/w0
-%a=((R_etm-tL)*(R_itm*alphaITMX)-(tL-L+R_itm)*(R_etm*alphaETMX))/((R_itm+R_etm-L)*w0);
 a_P=((R_etm-tL)*(R_itm*alphaITM_P)-(tL-L+R_itm)*(R_etm*alphaETM_P))/((R_itm+R_etm-L)*w0);
 a_Y=((R_etm-tL)*(R_itm*alphaITM_Y)-(tL-L+R_itm)*(R_etm*alphaETM_Y))/((R_itm+R_etm-L)*w0);
-%xvar=power((power(alpha,2) + power(a,2)),.5);
 xvar= power(((power(alpha_P,2)+power(alpha_Y,2))+(power(a_P,2)+power(a_Y,2))),.5);
 
 fitting_path='/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/';
