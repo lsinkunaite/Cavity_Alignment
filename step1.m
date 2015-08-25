@@ -17,7 +17,7 @@ finesse_filename='freise'; % Finesse filename w/o extension
 finesse_filepath='/home/laurasinkunaite/Finesse2.0/Misalignment/kat'; % Path to kat.ini
 code_path='/home/laurasinkunaite/Finesse2.0/Misalignment/';
 
-maxTEM=5; % # of modes to be analysed: maxTEM+1
+maxTEM=10; % # of modes to be analysed: maxTEM+1
 poly_degree_plot=8; % Degree of polynomial fit for plotting
 poly_degree_fit=10; % Degree of polynomial fit for calculations
 
@@ -31,15 +31,28 @@ R_etm = 2241.54;
 R_itm = 99999999999;
 L=2158.28;
 
+
+results_filename1 = 'fit_results_';
+results_filename2 = '.txt';
+figure_filename2 = '.jpg';
+fFIT_filename = 'fit_match_';
+fFIT_All_filename = 'fitting_All_HG';
+fTABLE_filename = 'power_Table';
+rTABLE_filename = 'ratio_Table';
+fitting_path = '/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/';
+bash_filename1 = 'bash_test.sh';
+bash_filename2 = 'step1.sh';
+
 % Deleting old files
 old_filename = 'Fitting/fitting_HG%s%s.txt';
 old_filename2 = 'Fitting/fitting_All_HG%s%s.txt';
 delete('Fitting/power_Table.txt');
 delete_old(maxTEM,old_filename);
 delete_old(maxTEM,old_filename2);
+delete(strcat(fitting_path,rTABLE_filename,results_filename2));
 
 % Tilting angle theta
-theta_from0=0; theta_to0=0.00005; theta_bin = 1000;
+theta_from0=0; theta_to0=0.00005; theta_bin = 200;
 
 alpha=[]; % 2*theta / alpha0
 a=[]; % Beam waist radius
@@ -97,15 +110,7 @@ for TEMorder=0:maxTEM
 end
 totalpower=sum(powerMatrix, 2);
 
-results_filename1 = 'fit_results_';
-results_filename2 = '.txt';
-figure_filename2 = '.jpg';
-fFIT_filename = 'fit_match_';
-fFIT_All_filename = 'fitting_All_HG';
-fTABLE_filename = 'power_Table';
-fitting_path = '/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/';
-bash_filename1 = 'bash_test.sh';
-bash_filename2 = 'step1.sh';
-
 
 Coeff_Table(strcat(fitting_path,fTABLE_filename,results_filename2),xvar,powerMatrix,strcat(fitting_path,fTABLE_filename,results_filename2),bash_filename2);
+Table_Matrix=csvread(strcat(fitting_path,fTABLE_filename,results_filename2));
+Ratio_Table(fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2);
