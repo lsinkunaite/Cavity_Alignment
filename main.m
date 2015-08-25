@@ -30,10 +30,9 @@ old_filename = 'Fitting/fitting_HG%s%s.txt';
 old_filename2 = 'Fitting/fitting_All_HG%s%s.txt';
 delete_old(maxTEM,old_filename);
 delete_old(maxTEM,old_filename2);
-delete('/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/ratio_Table.txt');
+%delete('/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/ratio_Table.txt');
 
 % Tilting angle theta
-%theta_from0=-0.00001; theta_to0=0.00001; theta_bin = 11;
 theta_from0=0; theta_to0=0.00001; theta_bin=11;
 
 alpha_P=[]; % 2*theta / alpha0
@@ -100,9 +99,7 @@ for pkr_iter=1:(length(pks))
     pkr(pkr_iter)=(pks(pkr_iter))/ref_peak;
 end
 
-
-Table_Matrix=csvread(strcat(fitting_path,fTABLE_filename,results_filename2));
-Ratio_Matrix=Ratio_Table(pkr,fitting_path,rTABLE_filename,results_filename2,Table_Matrix,bash_filename2);
+Ratio_Matrix=csvread(strcat(fitting_path,rTABLE_filename,results_filename2));
 
 z_R=(pi*(power(w0,2)))/lambda; % Rayleigh range
 gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi; % Gouy phase shift
