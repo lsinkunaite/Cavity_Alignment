@@ -16,7 +16,7 @@ finesse_filename='freise2'; % Finesse filename w/o extension
 finesse_filepath='/home/laurasinkunaite/Finesse2.0/Misalignment/kat'; % Path to kat.ini
 code_path='/home/laurasinkunaite/Finesse2.0/Misalignment/';
 
-maxTEM=12; % # of modes to be analysed: maxTEM+1
+maxTEM=20; % # of modes to be analysed: maxTEM+1
 
 tL = 2158.28; % Distance to the beam waist
 L = 4000.00; % Position of the beam splitter/itm
@@ -50,13 +50,16 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-%alphaITMX=8.54e-6; alphaETMX=2.401e-6;
-%alphaITM_P=1e-6;alphaETM_P=9e-7;
-alphaETM_P=9e-7;
+alphaETM_P=10e-6; alphaETM_Y=7.5e-7;
+%alphaETM_P=1.9e-6; alphaETM_Y=2.3e-6;
+%alphaETM_P=8.54e-7; alphaETM_Y=2.401e-6;
+%alphaETM_P=9e-7;
+%alphaETM_P=8.54e-6;
 alphaITM_P=alphaETM_P*(-R_etm/R_itm);
-%alphaITM_P=alphaETM_P*(tL-L+R_itm)*(R_etm/R_itm)/(R_etm-tL);
+%alphaITM_P=0;
 %alphaITM_Y=2e-6;alphaETM_Y=4.9e-7;
-alphaETM_Y=4.9e-7;
+%alphaETM_Y=4.9e-7;
+%alphaETM_Y=2.401e-6;
 alphaITM_Y=alphaETM_Y*(R_etm/R_itm)*(tL-L+R_itm)/(R_etm-tL);
 %alphaITM_Y=alphaETM_Y*(-R_etm/R_itm);
 
