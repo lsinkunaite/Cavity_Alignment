@@ -25,13 +25,6 @@ w0 = 8.47e-03; % Beam waist radius
 R_etm = 2241.54;
 R_itm = 1939.3;
 
-% Deleting old files
-old_filename = 'Fitting/fitting_HG%s%s.txt';
-old_filename2 = 'Fitting/fitting_All_HG%s%s.txt';
-delete_old(maxTEM,old_filename);
-delete_old(maxTEM,old_filename2);
-%delete('/home/laurasinkunaite/Finesse2.0/Misalignment/Fitting/ratio_Table.txt');
-
 % Tilting angle theta
 theta_from0=0; theta_to0=0.00001; theta_bin=11;
 
@@ -49,18 +42,10 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-alphaETM_P=10e-6; alphaETM_Y=7.5e-7;
-%alphaETM_P=1.9e-6; alphaETM_Y=2.3e-6;
-%alphaETM_P=8.54e-7; alphaETM_Y=2.401e-6;
-%alphaETM_P=9e-7;
-%alphaETM_P=8.54e-6;
+alphaETM_P=-1.55e-6; alphaETM_Y=1.35e-6;
+%alphaITM_P=8.5e-7; alphaITM_Y=1.6e-6;
 alphaITM_P=alphaETM_P*(-R_etm/R_itm);
-%alphaITM_P=0;
-%alphaITM_Y=2e-6;alphaETM_Y=4.9e-7;
-%alphaETM_Y=4.9e-7;
-%alphaETM_Y=2.401e-6;
 alphaITM_Y=alphaETM_Y*(R_etm/R_itm)*(tL-L+R_itm)/(R_etm-tL);
-%alphaITM_Y=alphaETM_Y*(-R_etm/R_itm);
 
 alpha_P=(R_etm*alphaETM_P+R_itm*alphaITM_P)/((R_etm+R_itm-L)*alpha0);
 alpha_Y=(R_etm*alphaETM_Y+R_itm*alphaITM_Y)/((R_etm+R_itm-L)*alpha0);
