@@ -26,8 +26,33 @@ Input_Matrix_6_256=csvread('/home/laurasinkunaite/Finesse2.0/Misalignment/laura_
 Input_Matrix_7_16k=csvread('/home/laurasinkunaite/Finesse2.0/Misalignment/laura_measurements/x-arm_7line_16k.txt');
 Input_Matrix_7_256=csvread('/home/laurasinkunaite/Finesse2.0/Misalignment/laura_measurements/x-arm_7line_256.txt');
 
+[Min,I_min]=min(Input_Matrix_2_256(:,2)+Input_Matrix_2_256(:,5));
+[Max,I_max]=max(Input_Matrix_2_256(:,2)+Input_Matrix_2_256(:,5));
+Range_factor=(length(Input_Matrix_2_16k(:,2)))/(length(Input_Matrix_2_256(:,2)));
+Range=[I_min I_max];
+Range=sort(Range*Range_factor);
 
-[pks,locs]=findAllpeaks(Input_Matrix_2_16k(:,2)');
+Range_Array=[0 (diff(sign(diff(Input_Matrix_2_256(:,2)+Input_Matrix_2_256(:,5))))==0)' 0];
+Iter_Calc=0;
+Range_Length=0;
+Range_From=0; Range_To=0;
+for Iter_Range=1:(length(Range_Array))
+    if (Range_Array(Iter_Range)==1)
+        Iter_Calc=Iter_Calc+1;
+        if (Iter_Calc > Range_Length)
+            Range_Length=Iter_Calc;
+            Range_From=Iter_Range-Range_Length+1;
+            Range_To=Iter_Range;
+        end
+    else
+        Iter_Calc=0;
+    end
+end
+
+%[pks,locs]=findpeaks(Input_Matrix_2_16k(Range(1):Range(end),2)');
+%findpeaks(Input_Matrix_2_16k(Range(1):Range(end),2)');
+[pks,locs]=findpeaks(Input_Matrix_2_16k((Range_From*Range_factor):(Range_To*Range_factor),2)');
+findpeaks(Input_Matrix_2_16k((Range_From*Range_factor):(Range_To*Range_factor),2)');
 
 for pkr_iter=1:(length(pks))
     ref_peak=max(pks);
@@ -40,4 +65,4 @@ gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi; % Gouy phase shift
 [Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,gouy_peaks);
 Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1)
 
-%plot_picking(Input_Matrix_1_16k',Input_Matrix_1_256');
+plot_picking(Input_Matrix_2_16k(:,2)',Input_Matrix_2_256);

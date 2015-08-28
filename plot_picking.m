@@ -8,12 +8,18 @@ function plot_picking(input_matrix1,input_matrix2)
     figure;
     subplot(4,1,1);
     plot(input_matrix2(:,2)-input_matrix2(:,5));
+    xlim([0 (length(input_matrix2))]);
+    title('Difference');
     subplot(4,1,2);
     plot(input_matrix2(:,2)+input_matrix2(:,5));
+    xlim([0 (length(input_matrix2))]);
+    title('Sum');
     subplot(4,1,3);
     plot(input_matrix1);
+    xlim([0 (length(input_matrix1))]);
     subplot(4,1,4);    
     plot(input_matrix1);
+    xlim([0 (length(input_matrix1))]);
     hold on;
     plot(locs, pks,'or');
     xlim([0 (length(input_matrix1)-1)]);
