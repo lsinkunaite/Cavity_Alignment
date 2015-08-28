@@ -66,3 +66,27 @@ gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi; % Gouy phase shift
 Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1)
 
 plot_picking(Input_Matrix_2_16k(:,2)',Input_Matrix_2_256);
+
+figure(3);
+x=1:1:(length(Input_Matrix_2_256(:,2))); 
+x_in=x*Range_factor; % Old domain
+x_out=1:1:(length(Input_Matrix_2_16k(:,2))); % New domain
+y=Input_Matrix_2_256(:,2)+Input_Matrix_2_256(:,5);
+Interpolated_y=Interpolator(x_in,x_out,y);
+
+subplot(3,1,1);
+plot(Interpolated_y,Input_Matrix_2_16k(:,2));
+xlim([(min(Interpolated_y)) (max(Interpolated_y))]);
+xlabel('Relative displacement of EX and IX at L2 stage');
+%xlabel('Relative displacement between EX and IX L2 stage and reaction chain L2 stage');
+ylabel('Power');
+title('Unfolded power distribution at 16k Hz');
+subplot(3,1,2);
+plot(Input_Matrix_2_16k(:,2));
+xlim([0 (length(Input_Matrix_2_16k(:,2)))]);
+ylabel('Power');
+title('Power at 16k Hz');
+subplot(3,1,3);
+plot(Interpolated_y);
+xlim([0 (length(Interpolated_y))]);
+title('Relative displacement of EX and IX at L2 stage');
