@@ -16,7 +16,7 @@ finesse_filename='freise2'; % Finesse filename w/o extension
 finesse_filepath='/home/laurasinkunaite/Finesse2.0/Misalignment/kat'; % Path to kat.ini
 code_path='/home/laurasinkunaite/Finesse2.0/Misalignment/';
 
-maxTEM=20; % # of modes to be analysed: maxTEM+1
+maxTEM=10; % # of modes to be analysed: maxTEM+1
 
 tL = 2158.28; % Distance to the beam waist
 L = 4000.00; % Position of the beam splitter/itm
@@ -42,10 +42,10 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-alphaETM_P=-1.55e-6; alphaETM_Y=1.35e-6;
-%alphaITM_P=8.5e-7; alphaITM_Y=1.6e-6;
-alphaITM_P=alphaETM_P*(-R_etm/R_itm);
-alphaITM_Y=alphaETM_Y*(R_etm/R_itm)*(tL-L+R_itm)/(R_etm-tL);
+alphaETM_P=5e-6; alphaETM_Y=0;
+alphaITM_P=2.5e-6; alphaITM_Y=0;
+%alphaITM_P=alphaETM_P*(-R_etm/R_itm);
+%alphaITM_Y=alphaETM_Y*(R_etm/R_itm)*(tL-L+R_itm)/(R_etm-tL);
 
 alpha_P=(R_etm*alphaETM_P+R_itm*alphaITM_P)/((R_etm+R_itm-L)*alpha0);
 alpha_Y=(R_etm*alphaETM_Y+R_itm*alphaITM_Y)/((R_etm+R_itm-L)*alpha0);
@@ -100,7 +100,8 @@ title('Power distribution of different HG modes');
 [pkr_gouy,locs_gouy]=Gouy_Sort(pkr,locs,gouy_shift);
 
 % Calculates misalignment
-[Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,pkr_gouy);
+%[Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,pkr_gouy);
+[Dist_Gouy,Row_Gouy,Mode_Gouy]=TrueMisalignment(Ratio_Matrix,pkr_gouy);
 Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1);
 
 [c, index]= min(abs(Ratio_Matrix(:,1)-xvar));
