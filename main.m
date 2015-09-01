@@ -42,12 +42,13 @@ theta_step=(theta_to-theta_from)/(theta_bin-1);
 alphaITM = (theta_from:theta_step:theta_to);
 alphaETM = (theta_from:theta_step:theta_to);
 
-alphaETM_P=5e-6; alphaETM_Y=0;
-alphaITM_P=2.5e-6; alphaITM_Y=0;
+alphaETM_P=1.4e-6; alphaETM_Y=1.29e-6;
+alphaITM_P=7.5e-7; alphaITM_Y=2.6e-6;
 %alphaITM_P=alphaETM_P*(-R_etm/R_itm);
 %alphaITM_Y=alphaETM_Y*(R_etm/R_itm)*(tL-L+R_itm)/(R_etm-tL);
 
-alpha_P=(R_etm*alphaETM_P+R_itm*alphaITM_P)/((R_etm+R_itm-L)*alpha0);
+% Sign convention for the cavity. [Same in Finesse?]
+alpha_P=(R_etm*alphaETM_P-R_itm*alphaITM_P)/((R_etm+R_itm-L)*alpha0);
 alpha_Y=(R_etm*alphaETM_Y+R_itm*alphaITM_Y)/((R_etm+R_itm-L)*alpha0);
 a_P=((R_etm-tL)*(R_itm*alphaITM_P)-(tL-L+R_itm)*(R_etm*alphaETM_P))/((R_itm+R_etm-L)*w0);
 a_Y=((R_etm-tL)*(R_itm*alphaITM_Y)-(tL-L+R_itm)*(R_etm*alphaETM_Y))/((R_itm+R_etm-L)*w0);
