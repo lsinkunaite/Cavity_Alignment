@@ -13,15 +13,13 @@ function [Domain_From_new,Domain_To_new]=Extreme(input_matrix,pks,locs,fraction1
             Max_pk2=extremeDiff_pks(another_iter);
             Max_loc2=extremeDiff_locs(another_iter);
             if Max_loc1>Max_loc2
-                %Max_loc1=Max_loc1-1;
                 Slope_Array=[0 (diff(sign(diff(input_matrix)))==0)' 0];
                 Max_loc1=find((Slope_Array(1:Max_loc1-1))==0,1,'last');
-                Max_loc2=find((Slope_Array(Max_loc2+1:end))==0,1)+Max_loc2-1;
+                Max_loc2=find((Slope_Array(1:Max_loc2-1))==0,1,'last');
             else
-                %Max_loc1=Max_loc1+1;
                 Slope_Array=[0 (diff(sign(diff(input_matrix)))==0)' 0];
                 Max_loc1=find((Slope_Array(Max_loc1+1:end))==0,1)+Max_loc1-1;
-                Max_loc2=find((Slope_Array(1:Max_loc2-1))==0,1,'last');
+                Max_loc2=find((Slope_Array(Max_loc2+1:end))==0,1)+Max_loc2-1;
             end
             Counter=1;
         end
