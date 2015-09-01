@@ -20,6 +20,9 @@ for i=2:2
     Input_Matrix_16k=csvread(strcat(data_path,sprintf(data_name_16k,num2str(i))));
     Input_Matrix_256=csvread(strcat(data_path,sprintf(data_name_256,num2str(i))));
 
+    Input_Matrix_16k=Decimator(Input_Matrix_16k,8);
+    
+    
     % Ratio between domains
     Domain_factor=(length(Input_Matrix_16k(:,2)))/(length(Input_Matrix_256(:,2)));
 
@@ -53,20 +56,33 @@ for i=2:2
     
     figure();
     subplot(3,1,1);
-    %[pks,locs]=findpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
-    %findpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
-    [pks,locs]=findpeaks(Input_Matrix_16k(4500:5500,2)');
-    findpeaks(Input_Matrix_16k(4500:5500,2)');
+    [pks,locs]=findpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
+    findpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
     title('findpeaks');
     subplot(3,1,2);
-    %[pks2,locs2]=findAllpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
-    [pks2,locs2]=findAllpeaks(Input_Matrix_16k(:,2)');
+    [pks2,locs2]=findAllpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
     title('findAllpeaks');
     subplot(3,1,3);
     [pks3,locs3]=findTruepeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
     title('findTruepeaks');
     
+    mode_algo=5;
+    [pks_new,locs_new]=findpeaks(Input_Matrix_16k(:,2)');
+    [extreme_pks,extreme_locs]=findExtremePeaks(pks,locs,.5);
+    [Domain_From_new,Domain_To_new]=Extreme(Input_Matrix_16k(:,2),pks_new,locs_new,0.5,0.2);
+    %[Domain_From_new,Domain_To_new]=Extreme(Input_Matrix_16k(:,2),pks_new,locs_new,.5,.2);
+    [pks_local,locs_local]=findpeaks(Input_Matrix_16k(Domain_From_new:Domain_To_new,2)');
+    if ((length(pks_local))>mode_algo)
+        [pks_algo,locs_algo]=sort(pks_local,'descend');
+        locs_algo=locs_local(locs_algo);
+        locs_algo=locs_algo(1:mode_algo);
+        pks_algo=pks_algo(1:mode_algo);
+    else     
+        pks_algo=pks_local;locs_algo=locs_local;
+    end
     
+    pks=pks_algo;
+    locs=locs_algo;
     for pkr_iter=1:(length(pks))
         ref_peak=max(pks);
         pkr(pkr_iter)=(pks(pkr_iter))/ref_peak;
@@ -74,9 +90,27 @@ for i=2:2
 
     % Returns misalignment parameter in a given range
     gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi; % Gouy phase shift
-    [gouy_peaks,gouy_locs] = Gouy_Sort(pkr,locs,gouy_shift);
+    [gouy_peaks,gouy_locs] = Gouy_Sort(pkr(:),locs(:),gouy_shift);
     [Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,gouy_peaks);
     Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1)
 
- 
+    figure();
+    plot(Interpolated_y(Domain_From:Domain_To),Input_Matrix_16k(Domain_From:Domain_To,2));
+    hold on;
+    plot(Interpolated_y(Domain_From+extreme_locs), extreme_pks,'or');
+    %xlim([0 (length(Input_Matrix_16k(Domain_From:Domain_To,2))-1)]);
+    xlim([(min(Interpolated_y(Domain_From:Domain_To))) (max(Interpolated_y(Domain_From:Domain_To)))]);
+    xlabel('Relative displacement of EX and IX at L2 stage [{\mu}m]');
+    ylabel('Power');
+    title('Unfolded power distribution at 16k Hz');
+    
+    figure();
+    plot(Interpolated_y(Domain_From_new:Domain_To_new),Input_Matrix_16k(Domain_From_new:Domain_To_new,2));
+    hold on;
+    plot(Interpolated_y(Domain_From_new+locs_algo),pks_algo,'or');
+    xlim([(min(Interpolated_y(Domain_From_new:Domain_To_new))) (max(Interpolated_y(Domain_From_new:Domain_To_new)))]);
+    xlabel('Relative displacement of EX and IX at L2 stage [{\mu}m]');
+    ylabel('Power');
+    title('Unfolded power distribution at 16k Hz');
+    
 end
