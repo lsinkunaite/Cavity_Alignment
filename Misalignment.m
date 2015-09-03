@@ -11,7 +11,6 @@ function [Min_Dist,Mis_Row,Mis_Mode] = Misalignment(Ratio_Matrix,sorted_pkr)
                     Dist=Dist+power(sorted_pkr(pkr_Iter2)-Ratio_Matrix(RRow_Iter,RColumn_Iter+pkr_Iter2),2);
                 end
                 Inter_Dist=power(Dist,.5);
-                %fprintf('Row = %d, Mode = %d, Inter_Dist = %f, Min_Dist = %f\n',RRow_Iter,RColumn_Iter-1,Inter_Dist,Min_Dist);
                 if (Inter_Dist<Min_Dist)
                     Min_Dist=Inter_Dist;
                     Mis_Row=RRow_Iter;
@@ -33,4 +32,5 @@ function [Min_Dist,Mis_Row,Mis_Mode] = Misalignment(Ratio_Matrix,sorted_pkr)
             end
         end
     end
+    Mis_Mode=Mis_Mode+(find(pkr==1))-1;
 end
