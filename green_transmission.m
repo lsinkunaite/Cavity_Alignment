@@ -60,7 +60,10 @@ for i=1:7
     % Returns misalignment parameter in a given range
     gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi; % Gouy phase shift
     [gouy_pkr,gouy_locs] = Gouy_Sort(pkr(:),locs(:),gouy_shift);
-    [Dist_Gouy,Row_Gouy,Mode_Gouy,Tgouy_pkr]=TrueMisalignment(Ratio_Matrix,gouy_pkr);
+    % Checks peaks both ways [for higher-order modes]
+    % [Dist_Gouy,Row_Gouy,Mode_Gouy,Tgouy_pkr]=TrueMisalignment(Ratio_Matrix,gouy_pkr);
+    % Checks peaks one way [for lower higher-order modes]
+    [Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,gouy_pkr);
     Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1)
 %     Ratio_Matrix(Row_Gouy,:)
 %     Tgouy_pkr
