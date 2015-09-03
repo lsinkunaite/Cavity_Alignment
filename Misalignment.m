@@ -32,5 +32,5 @@ function [Min_Dist,Mis_Row,Mis_Mode] = Misalignment(Ratio_Matrix,sorted_pkr)
             end
         end
     end
-    Mis_Mode=Mis_Mode+(find(pkr==1))-1;
+    Mis_Mode=Mis_Mode+(find(sorted_pkr==1))-1;
 end
