@@ -15,16 +15,26 @@ R_itm = 1939.3;
 alpha0 = (power((lambda/pi),.5))*(power((tL*(R_etm-tL)),(-.25)));
 z_R=(pi*(power(w0,2)))/lambda; % Rayleigh range
 
+[z,p,k] = butter(5,0.4,'low');
+sos = zp2sos(z,p,k);
+fvtool(sos,'Analysis','freq')
+test_array=[0 0.687242 0.903745 0.747380 6.405156 1.130984 0.945770];
+
 % Iterates over measured data (i = 7)
 for i=1:7
     Input_Matrix_16k=csvread(strcat(data_path,sprintf(data_name_16k,num2str(i))));
     Input_Matrix_256=csvread(strcat(data_path,sprintf(data_name_256,num2str(i))));
+    test_value=test_array(i);
     
     % Downsamples 16k matrix
     Input_Matrix_16k=Decimator(Input_Matrix_16k,8);
+    % Low-pass filter
+    %Input_Matrix_16k=LowPass_Filter(Input_Matrix_16k,4,.4);
+
+    Input_Matrix_16k=sosfilt(sos,Input_Matrix_16k);
     
     % Anti-resolution and anti-spike parameters
-    antires=5;antispike=.01;
+    antires=10;antispike=.01;
     
     % Ratio between domains
     Domain_factor=(length(Input_Matrix_16k(:,2)))/(length(Input_Matrix_256(:,2)));
@@ -35,23 +45,17 @@ for i=1:7
     x_out=1:1:(length(Input_Matrix_16k(:,2))); % New domain
     y=Input_Matrix_256(:,2)+Input_Matrix_256(:,5);
     Interpolated_y=Interpolator(x_in,x_out,y);
-
-%         
-%     [Domain_From,Domain_To]=LinearDomain(Interpolated_y');    
-%     
-%     % Peaks and their locations
-%     [pks,locs]=findpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
-%     [pks2,locs2]=findAllpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
-%     [pks3,locs3]=findTruepeaks(Input_Matrix_16k(Domain_From:Domain_To,2)',antires,antispike);
-    
-    mode_algo=5;
+   
+    maxTEM=5;
+    mode_algo=maxTEM+1;
     [pks,locs]=findpeaks(Input_Matrix_16k(:,2)');
-    [Domain_From,Domain_To]=Extreme(Input_Matrix_16k(:,2),pks,locs,0.5,0.2);
+    [Domain_From,Domain_To]=Extreme(Input_Matrix_16k(:,2),Interpolated_y,pks,locs,0.2);
     [True_pks,True_locs]=findTruepeaks(Input_Matrix_16k(Domain_From:Domain_To,2)',antires,antispike);
-
+    
     [pks,locs]=findVIpeaks(True_pks,True_locs,mode_algo);
 
     ref_peak=max(pks);
+    
     pkr=[];
     for pkr_iter=1:(length(pks))
         pkr(pkr_iter)=(pks(pkr_iter))/ref_peak;
@@ -65,64 +69,21 @@ for i=1:7
     % Checks peaks one way [for lower higher-order modes]
     [Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,gouy_pkr);
     Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1)
-%     Ratio_Matrix(Row_Gouy,:)
-%     Tgouy_pkr
-%     [c, index]= min(abs(Ratio_Matrix(:,1)-2.3516));
-%     Ratio_Matrix(index,:)
-%     Mode_Gouy
-%     Mis_Par_Gouy
+    Ratio_Matrix(Row_Gouy,:)
+    gouy_pkr
+    [c, index]= min(abs(Ratio_Matrix(:,1)-test_value));
+    Ratio_Matrix(index,:)
+    Mode_Gouy
 
-%     figure();
-%     plot(Interpolated_y(Domain_From:Domain_To),Input_Matrix_16k(Domain_From:Domain_To,2));
-%     hold on;
-%     plot(Interpolated_y(Domain_From+extreme_locs), extreme_pks,'or');
-%     %xlim([0 (length(Input_Matrix_16k(Domain_From:Domain_To,2))-1)]);
-%     xlim([(min(Interpolated_y(Domain_From:Domain_To))) (max(Interpolated_y(Domain_From:Domain_To)))]);
-%     xlabel('Relative displacement of EX and IX at L2 stage [{\mu}m]');
-%     ylabel('Power');
-%     title('Unfolded power distribution at 16k Hz');
-%     
-%     figure();
-%     plot(Interpolated_y(Domain_From_new:Domain_To_new),Input_Matrix_16k(Domain_From_new:Domain_To_new,2));
-%     hold on;
-%     plot(Interpolated_y(Domain_From_new+locs_algo),pks_algo,'or');
-%     xlim([(min(Interpolated_y(Domain_From_new:Domain_To_new))) (max(Interpolated_y(Domain_From_new:Domain_To_new)))]);
-%     xlabel('Relative displacement of EX and IX at L2 stage [{\mu}m]');
-%     ylabel('Power');
-%     title('Unfolded power distribution at 16k Hz');
-%    
-    %% Plotting
+    figure;
+    subplot(2,1,1);
+    plot(Input_Matrix_16k(:,2));
+    xlim([0 (length(Input_Matrix_16k(:,2)-1))]);
+    title('Full scan');ylabel('Power [W]');
+    subplot(2,1,2);
+    plot(Interpolated_y(Domain_From:Domain_To),Input_Matrix_16k(Domain_From:Domain_To,2));
+    xlim([min(Interpolated_y(Domain_From:Domain_To)) max(Interpolated_y(Domain_From:Domain_To))]);
+    title('Selected region');ylabel('Power [W]');%xlabel('Relative displacement [{\mu}m]');
+    xlabel([Domain_From Domain_To]);
     
-%     % Plots power vs relative displacement
-%     figure();
-%     subplot(3,1,1);
-%     plot(Interpolated_y,Input_Matrix_16k(:,2));
-%     xlim([(min(Interpolated_y)) (max(Interpolated_y))]);
-%     xlabel('Relative displacement of EX and IX at L2 stage');
-%     %xlabel('Relative displacement between EX and IX L2 stage and reaction chain L2 stage');
-%     ylabel('Power');
-%     title('Unfolded power distribution at 16k Hz');
-%     subplot(3,1,2);
-%     plot(Input_Matrix_16k(:,2));
-%     xlim([0 (length(Input_Matrix_16k(:,2)))]);
-%     ylabel('Power');
-%     title('Power at 16k Hz');
-%     subplot(3,1,3);
-%     plot(Interpolated_y);
-%     xlim([0 (length(Interpolated_y))]);
-%     title('Relative displacement of EX and IX at L2 stage');
-    
-%     % Plots different versions of findpeaks
-%     figure();
-%     subplot(3,1,1);
-%     [pks,locs]=findpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
-%     findpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
-%     title('findpeaks');
-%     subplot(3,1,2);
-%     [pks2,locs2]=findAllpeaks(Input_Matrix_16k(Domain_From:Domain_To,2)');
-%     title('findAllpeaks');
-%     subplot(3,1,3);
-%     [pks3,locs3]=findTruepeaks(Input_Matrix_16k(Domain_From:Domain_To,2)',antires,antispike);
-%     title('findTruepeaks');
-
 end
