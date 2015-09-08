@@ -24,6 +24,8 @@ test_array=[0 0.687242 0.903745 0.747380 6.405156 1.130984 0.945770];
 for i=1:7
     Input_Matrix_16k=csvread(strcat(data_path,sprintf(data_name_16k,num2str(i))));
     Input_Matrix_256=csvread(strcat(data_path,sprintf(data_name_256,num2str(i))));
+    %Optical_Lever=Input_Matrix_256(:,3)+Input_Matrix_256(:,4)+Input_Matrix_256(:,6)+Input_Matrix_256(:,7);
+    Optical_Lever=Input_Matrix_256(:,3)+Input_Matrix_256(:,4);
     test_value=test_array(i);
     
     % Downsamples 16k matrix
@@ -32,6 +34,18 @@ for i=1:7
     %Input_Matrix_16k=LowPass_Filter(Input_Matrix_16k,4,.4);
 
     Input_Matrix_16k=sosfilt(sos,Input_Matrix_16k);
+    
+    %[z2,p2,k2] = butter(6,0.4,'low');
+    %sos2= zp2sos(z2,p2,k2);
+    %Optical_Lever=sosfilt(sos2,Optical_Lever);
+    figure();
+    subplot(2,1,1);
+    plot(Optical_Lever);
+    %hold on;
+    %[pks_opt,locs_opt]=findpeaks(Optical_Lever);
+    %plot(locs_opt,pks_opt,'^r');
+    %xlabel(i);
+    %title('Optical Lever');
     
     % Anti-resolution and anti-spike parameters
     antires=10;antispike=.01;
@@ -45,12 +59,23 @@ for i=1:7
     x_out=1:1:(length(Input_Matrix_16k(:,2))); % New domain
     y=Input_Matrix_256(:,2)+Input_Matrix_256(:,5);
     Interpolated_y=Interpolator(x_in,x_out,y);
-   
+    Interpolated_ol=Interpolator(x_in,x_out,Optical_Lever);
+    subplot(2,1,2);
+    plot(Interpolated_ol);
+    
     maxTEM=5;
     mode_algo=maxTEM+1;
     [pks,locs]=findpeaks(Input_Matrix_16k(:,2)');
     [Domain_From,Domain_To]=Extreme(Input_Matrix_16k(:,2),Interpolated_y,pks,locs,0.2);
     [True_pks,True_locs]=findTruepeaks(Input_Matrix_16k(Domain_From:Domain_To,2)',antires,antispike);
+    
+    fprintf('ol_1=%f, ol_2=%f',Interpolated_ol(Domain_From),Interpolated_ol(Domain_To));
+    figure();
+    plot(Interpolated_ol);
+    hold on;
+    plot(Domain_From,Interpolated_ol(Domain_From),'ok');
+    plot(Domain_To,Interpolated_ol(Domain_To),'or');
+    
     
     [pks,locs]=findVIpeaks(True_pks,True_locs,mode_algo);
 
@@ -69,11 +94,11 @@ for i=1:7
     % Checks peaks one way [for lower higher-order modes]
     [Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,gouy_pkr);
     Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1)
-    Ratio_Matrix(Row_Gouy,:)
-    gouy_pkr
-    [c, index]= min(abs(Ratio_Matrix(:,1)-test_value));
-    Ratio_Matrix(index,:)
-    Mode_Gouy
+%     Ratio_Matrix(Row_Gouy,:)
+%     gouy_pkr
+%     [c, index]= min(abs(Ratio_Matrix(:,1)-test_value));
+%     Ratio_Matrix(index,:)
+%     Mode_Gouy
 
     figure;
     subplot(2,1,1);
