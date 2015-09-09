@@ -1,0 +1,8 @@
+l laser 1 0 n0
+gauss g1 laser n0 8.47m -2158.28
+
+m mirror 1 0 0 n1 n2
+
+pd pow n2
+
+noxaxis

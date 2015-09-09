@@ -1,0 +1,11 @@
+MAIN.M >> runs Finesse file and varies the angle of misalignment of ETMX_P, ETMX_Y, ITMX_P, and ITMX_Y mirrors. Creates and tests an algorithm to extract the misalignment parameter from a power distribution simulation generated with Finesse. Outputs the true and calculated misalignment parameters.
+
+FINESSE_ALGORITHM.KAT >> Finesse file used in simulation
+
+MISALIGNMENT.M >> extracts misalignment information by comparing the data from the new realistic simulation with results from the earlier simulation (Step 1). 
+
+FINDALLPEAKS.M >> finds peaks including the end points.
+
+GOUY_SORT.M >> reorders peaks in a vector using their position and Gouy phase shift. 
+
+CHECK_TRANSMITTANCE.M >> generates a plot of an expected power transmission (for sanity check).

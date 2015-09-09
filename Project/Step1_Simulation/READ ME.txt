@@ -1,0 +1,11 @@
+MAIN.M >> runs Finesse file and varies the angle of misalignment of the mirror. Calculates the reflected power of each mode up to maxTEM+1, applies a polynomial fit to it, and prints out the fitting coefficients in a tabular form (power_Table.txt). Also prints a table of coefficient ratios with regard to the largest coefficient in each row (ratio_Table.txt).
+
+FINESSE_SIMULATION.KAT >> basis of the simulation. This is a Finesse file, which is run by invoking it from MATLAB.
+
+COEFF_TABLE.M >> generates a table with coefficients obtained from polynomial fitting.
+
+RATIO_TABLE.M >> converts coefficient table into a ratio table by dividing each element in a row wrt the greatest element in that row.
+
+LATEX_TABLE.M >> converts each tabular data file into LaTEX table notation.
+
+MAIN.SH >> bashscript used in LATEX_TABLE.M function. 

@@ -1,0 +1,14 @@
+
+------------------------------------------------------------------------
+                     FINESSE v2.0               (build v2.0-21-g3c2d315)
+       o_.-=.        Frequency domain INterferomEter Simulation SoftwarE
+      (\'".\|        19.05.2014         http://www.gwoptics.org/finesse/
+      .>' (_--.      
+   _=/d   ,^\        Input file finesse_simulationout.kat,
+  ~~ \)-'   '        Output file finesse_simulationout.out,
+     / |             Gnuplot file finesse_simulationout.gnu 
+    '  '                                        Tue Sep  8 15:21:29 2015
+------------------------------------------------------------------------
+ 'noxaxis' has been set, ignoring all other xaxis commands
+ 
+ writing matlab/python/gnuplot batch files...
