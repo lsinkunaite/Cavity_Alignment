@@ -14,16 +14,15 @@ function [pks,locs] = findTruepeaks(input_matrix,antires,antispike)
 %     plot(input_matrix);
 %     hold on;
 %     plot(locs,input_matrix(locs),'vr');
-%     title('Principle of findTruepeaks');
+%     title('peaks');
     
-    % Finds neighbouring peaks using anti-resolution
     locs((find(((diff(locs))<antires)&((diff(input_matrix(locs)))<=0)))+1)=[];
     
 %     subplot(4,1,2);
 %     plot(input_matrix);
 %     hold on;
 %     plot(locs,input_matrix(locs),'vr');
-%     title('Anti-resolution L2R');
+%     title('antires L2R');
     
     locs=fliplr(locs);
     pks=input_matrix(locs);
@@ -35,7 +34,7 @@ function [pks,locs] = findTruepeaks(input_matrix,antires,antispike)
 %     plot(input_matrix);
 %     hold on;
 %     plot(locs,input_matrix(locs),'vr');
-%     title('Anti-resolution R2L');
+%     title('antires R2L');
     
     Slope_Array=[0 (diff(sign(diff(input_matrix)))==0) 0];
     prom(1)=pks(1)-(input_matrix(find((Slope_Array(locs(1)+1:end))==0,1)+locs(1)-1));
@@ -54,21 +53,21 @@ function [pks,locs] = findTruepeaks(input_matrix,antires,antispike)
         end
     end
 
-    % Eliminates little spikes
     prom_ratio=prom/(max(prom));
     locs(find(prom_ratio<antispike))=[];
     pks=input_matrix(locs);
     
+%     
 %     subplot(4,1,4);
 %     plot(input_matrix);
 %     hold on;
 %     plot(locs,input_matrix(locs),'vr');
-%     title('After antispike');
-%     
+%     title('antispike');
+    
 %     figure;
 %     plot(input_matrix);
 %     hold on;
 %     plot(locs, pks,'or');
 %     xlim([1 length(input_matrix)]);
 %     title('findTruepeaks');
-end         
+end       
