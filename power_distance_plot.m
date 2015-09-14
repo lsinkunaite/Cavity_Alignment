@@ -1,4 +1,4 @@
-function power_distance_plot(maxTEM,L_to,L_from,L_step,xvar_L,power_L,fitting_legend_string)
+function power_distance_plot(maxTEM,L_to,L_from,L_step,xvar_L,power_L,fitting_legend_string,theta_from0,theta_to0)
 % Plots power for each HG mode for different bs positions
     for plotting_step=1:(maxTEM+1)
         figure(plotting_step);
@@ -7,7 +7,8 @@ function power_distance_plot(maxTEM,L_to,L_from,L_step,xvar_L,power_L,fitting_le
             hold on;
         end
     
-        xlabel('$${i}\frac{\alpha}{\alpha_0} + \frac{a}{w_0}$$','interpreter','latex');
+        xlim([theta_from0 (theta_to0*1e5)]);
+        xlabel('$$\Big|{i}\frac{\alpha}{\alpha_0} + \frac{a}{w_0}\Big|$$','interpreter','latex');
         ylabel('Power [W]');
         title(sprintf('Power distribution of HG_{%d}_0 mode',plotting_step-1));
         grid on;

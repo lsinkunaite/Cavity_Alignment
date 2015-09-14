@@ -11,24 +11,18 @@
 close all; 
 clear all;
 
-<<<<<<< HEAD
-%data_path='/home/laurasinkunaite/Finesse2.0/Project/Step3_Automation/laura_measurements/';
-data_path='C:\Users\user\Desktop\Finesse2.0\Project\Step3_Automation\laura_measurements\';
-data_name_16k='x-arm_%sline_16k.txt';
-data_name_256='x-arm_%sline_256.txt';
-%Ratio_Matrix=csvread('/home/laurasinkunaite/Finesse2.0/Project/Step1_Simulation/Output/ratio_Table.txt');
-Ratio_Matrix=csvread('C:\Users\user\Desktop\Finesse2.0\Project\Step1_Simulation\Output\ratio_Table.txt');
-=======
 data_path='/home/laurasinkunaite/Finesse2.0/Project/Step3_Automation/laura_measurements/';
 data_name_16k='x-arm_%sline_16k.txt';
 data_name_256='x-arm_%sline_256.txt';
 Ratio_Matrix=csvread('/home/laurasinkunaite/Finesse2.0/Project/Step1_Simulation/Output/ratio_Table.txt');
->>>>>>> c7e3f3d612a2a82ad7e1019bae46c5c3bd4dae44
 
 tL = 2158.28; % Distance to the beam waist
 L = 4000.00; % Cavity length
 lambda = 532e-09; % Green light
 w0 = 8.47e-03; % Beam waist radius
+R_etm = 2241.54; % Radius of curvature of ETMX
+R_itm = 1939.3; % Radius of curvature of ITMX
+alpha0 = (power((lambda/pi),.5))*(power((tL*(R_etm-tL)),(-.25))); % Divergence
 z_R=(pi*(power(w0,2)))/lambda; % Rayleigh range
 
 % Low-pass Butterworth filter
@@ -43,15 +37,8 @@ test_array=[0 0.687242 0.903745 0.747380 6.405156 1.130984 0.945770];
 Data_N=7; % Number of datafiles
 % Iterates over measured data (i = 7)
 for i=1:Data_N
-<<<<<<< HEAD
-    %Input_Matrix_16k=csvread(strcat(data_path,sprintf(data_name_16k,num2str(i))));
-    %Input_Matrix_256=csvread(strcat(data_path,sprintf(data_name_256,num2str(i))));
-    Input_Matrix_16k=load(strcat(data_path,sprintf(data_name_16k,num2str(i))));
-    Input_Matrix_256=load(strcat(data_path,sprintf(data_name_256,num2str(i))));
-=======
     Input_Matrix_16k=csvread(strcat(data_path,sprintf(data_name_16k,num2str(i))));
     Input_Matrix_256=csvread(strcat(data_path,sprintf(data_name_256,num2str(i))));
->>>>>>> c7e3f3d612a2a82ad7e1019bae46c5c3bd4dae44
     Optical_Lever=Input_Matrix_256(:,3)+Input_Matrix_256(:,4)+Input_Matrix_256(:,6)+Input_Matrix_256(:,7);
     test_value=test_array(i);
     
@@ -81,7 +68,7 @@ for i=1:Data_N
     [Domain_From,Domain_To]=Extreme(Input_Matrix_16k(:,2),Interpolated_witness,pks,locs,0.2);
     [True_pks,True_locs]=findTruepeaks(Input_Matrix_16k(Domain_From:Domain_To,2)',antires,antispike);
     
-    %% Uncomment for witness sensor and optical lever plot
+    % Uncomment for witness sensor 
 %     figure();
 %     subplot(2,1,1);
 %     plot(Interpolated_ol);
@@ -101,11 +88,10 @@ for i=1:Data_N
 %     xlim([0 length(Interpolated_witness)]);
 %     
    
-    % Finds very important peaks
     [pks,locs]=findVIpeaks(True_pks,True_locs,mode_algo);
+
+    ref_peak=max(pks);
     
-    % Peak ratio
-    ref_peak=max(pks); 
     pkr=[];
     for pkr_iter=1:(length(pks))
         pkr(pkr_iter)=(pks(pkr_iter))/ref_peak;
@@ -115,27 +101,6 @@ for i=1:Data_N
     gouy_shift=(atan(tL/z_R)-atan(-(L-tL)/z_R))*180/pi; % Gouy phase shift
     [gouy_pkr,gouy_locs] = Gouy_Sort(pkr(:),locs(:),gouy_shift);
     
-<<<<<<< HEAD
-    % Flips the order of gouy_pkr wrt the witness sensor
-    [gouy_pkr,gouy_locs]=ToFlipOrNotToFlip(Interpolated_witness,Domain_From,Domain_To,gouy_pkr,gouy_locs);
-
-    
-%% Uncomment for the plot of the flipping condition    
-%     figure;
-%     plot(Domain_From,Interpolated_witness(Domain_From),'ok');
-%     hold on;
-%     plot(Domain_To,Interpolated_witness(Domain_To),'or');
-%     hold on;
-%     plot((round((Domain_To-Domain_From)/2))+Domain_From,Interpolated_witness((round((Domain_To-Domain_From)/2))+Domain_From),'ob');
-%     hold on;
-%     plot([1 (length(Interpolated_witness))],[mean(Interpolated_witness(~isnan(Interpolated_witness))) mean(Interpolated_witness(~isnan(Interpolated_witness)))]);
-%     xlim([1 (length(Interpolated_witness))]);
-%     ylabel('[{\mu}m]');title('Witness sensor');
-%     set(legend(sprintf('Region from: %d',Domain_From),sprintf('Region to: %d',Domain_To),'Mid-region','Mean witness'),'location','NorthEastOutside');
-%     hold on;
-%     plot(Interpolated_witness);
-    
-=======
 %     if ((Interpolated_witness(Domain_To)-Interpolated_witness(Domain_From))<0)
 %         gouy_pkr=fliplr(gouy_pkr);
 %         gouy_locs=fliplr(gouy_locs);
@@ -144,24 +109,26 @@ for i=1:Data_N
 %         fprintf('more');
 %     end
 
->>>>>>> c7e3f3d612a2a82ad7e1019bae46c5c3bd4dae44
+    % Checks peaks both ways [for higher-order modes]
+    % [Dist_Gouy,Row_Gouy,Mode_Gouy,Tgouy_pkr]=TrueMisalignment(Ratio_Matrix,gouy_pkr);
+    % Checks peaks one way [for lower higher-order modes]
     [Dist_Gouy,Row_Gouy,Mode_Gouy]=Misalignment(Ratio_Matrix,gouy_pkr);
-    Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1) % Misalignment parameter
-%     Ratio_Matrix(Row_Gouy,:) % Estimated misalignment
-%     gouy_pkr % Re-ordered peak ratios
+    Mis_Par_Gouy=Ratio_Matrix(Row_Gouy,1)
+%     Ratio_Matrix(Row_Gouy,:)
+%     gouy_pkr
 %     [c, index]= min(abs(Ratio_Matrix(:,1)-test_value));
-%     Ratio_Matrix(index,:) % True misalignment
-%     Mode_Gouy % Mode number of the highest peak
+%     Ratio_Matrix(index,:)
+%     Mode_Gouy
 
-%% Uncomment for the plot of the selected region
-%     figure;
-%     subplot(2,1,1);
-%     plot(Input_Matrix_16k(:,2));
-%     xlim([0 (length(Input_Matrix_16k(:,2)-1))]);
-%     title('Full scan');ylabel('Power [W]');
-%     subplot(2,1,2);
-%     plot(Interpolated_witness(Domain_From:Domain_To),Input_Matrix_16k(Domain_From:Domain_To,2));
-%     xlim([min(Interpolated_witness(Domain_From:Domain_To)) max(Interpolated_witness(Domain_From:Domain_To))]);
-%     title('Selected region');ylabel('Power [W]');%xlabel('Relative displacement [{\mu}m]');
-%     xlabel([Domain_From Domain_To]);
+    figure;
+    subplot(2,1,1);
+    plot(Input_Matrix_16k(:,2));
+    xlim([0 (length(Input_Matrix_16k(:,2)-1))]);
+    title('Full scan');ylabel('Power [W]');
+    subplot(2,1,2);
+    plot(Interpolated_witness(Domain_From:Domain_To),Input_Matrix_16k(Domain_From:Domain_To,2));
+    xlim([min(Interpolated_witness(Domain_From:Domain_To)) max(Interpolated_witness(Domain_From:Domain_To))]);
+    title('Selected region');ylabel('Power [W]');%xlabel('Relative displacement [{\mu}m]');
+    %xlabel('From: %d, To: %d [{\mu]m]',Domain_From,Domain_To);
+    xlabel([Domain_From Domain_To]);
 end
