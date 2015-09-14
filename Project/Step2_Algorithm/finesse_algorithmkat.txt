@@ -1,0 +1,8 @@
+s sarm 4000.000000 n1 n2
+attr itm Rc 1939.300000
+attr etm Rc -2241.540000
+attr itm xbeta -0.000001155850
+attr etm xbeta 0.000001000000
+attr itm ybeta 0.000002709293
+attr etm ybeta 0.000002000000
+maxtem 10

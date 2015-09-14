@@ -1,0 +1,19 @@
+.xml files are raw measurement files.
+Each of these contains 2 seconds worth of the following:
+H1:ALS-X_TR_A_LF_OUT at 16kHz sampling rate (this is green transmission)
+H1:SUS-ETMX_L1_LOCK_L_IN2 at 16kHz (excitation to EX L1 stage)
+H1:SUS-ETMX_L2_WIT_L_DQ at 256Hz (relative displacement between EX L2 stage and reaction chain L2 stage)
+H1:SUS-ETMX_L3_OPLEV_PIT_OUT_DQ at 256Hz (EX PIT angle in urad measured by the optical lever)
+H1:SUS-ETMX_L3_OPLEV_YAW_OUT_DQ at 256Hz (EX YAW angle in urad measured by the optical lever)
+H1:SUS-ITMX_L2_WIT_L_DQ at 256Hz (relative displacement between IX L2 stage and reaction chain L2 stage)
+H1:SUS-ITMX_L3_OPLEV_PIT_OUT_DQ at 256Hz (IX PIT angle in urad measured by the optical lever)
+H1:SUS-ITMX_L3_OPLEV_YAW_OUT_DQ at 256Hz (IX YAW angle in urad measured by the optical lever)
+
+Each file was exported to two text files.
+_16k.txt files contain the following:
+time, H1:ALS-X_TR_A_LF_OUT, H1:SUS-ETMX_L1_LOCK_L_IN2
+
+_256.txt files contain the following:
+time, H1:SUS-ETMX_L2_WIT_L_DQ, H1:SUS-ETMX_L3_OPLEV_PIT_OUT_DQ, H1:SUS-ETMX_L3_OPLEV_YAW_OUT_DQ, H1:SUS-ITMX_L2_WIT_L_DQ, H1:SUS-ITMX_L3_OPLEV_PIT_OUT_DQ, H1:SUS-ITMX_L3_OPLEV_YAW_OUT_DQ
+
+

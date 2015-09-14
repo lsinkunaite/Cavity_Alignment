@@ -1,0 +1,37 @@
+%----------------------------------------------------------------
+% function [x,y] = finesse_algorithmout(noplot)
+% Matlab function to plot Finesse output data
+% Usage: 
+%   [x,y] = finesse_algorithmout    : plots and returns the data
+%   [x,y] = finesse_algorithmout(1) : just returns the data
+%           finesse_algorithmout    : just plots the data
+% Created automatically Tue Sep  8 11:52:25 2015
+% by Finesse v2.0 (v2.0-21-g3c2d315), 19.05.2014
+%----------------------------------------------------------------
+function [x,y] = finesse_algorithmout(noplot)
+
+data = load('finesse_algorithmout.out');
+[rows,cols]=size(data);
+x=data(:,1);
+y=data(:,2:cols);
+mytitle='finesse\_algorithmout                Tue Sep  8 11:52:25 2015';
+if (nargin==0)
+
+figure('name','finesse_algorithmout');
+plot(x, y(:,1));
+legend(' n3');
+set(gca, 'YScale', 'lin');
+ylabel('Abs ');
+set(gca, 'XLim', [0 180]);
+xlabel('phi [deg] (etm)');
+grid on;
+title(mytitle);
+end
+
+switch nargout
+ case {0}
+  clear x y;
+ case {2}
+ otherwise
+  error('wrong number of outputs');
+end

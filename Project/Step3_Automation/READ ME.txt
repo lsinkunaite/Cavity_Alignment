@@ -1,0 +1,13 @@
+MAIN.M >> reads in measured data, applies various statistical processing tools, and returns the estimated misalignment parameter.
+
+DECIMATOR.M >> downsamples data by a given factor.
+
+INTERPOLATOR.M >> interpolates data in a given region.
+
+EXTREME.M >> defines boundaries for region selection.
+
+ISLINEAR.M >> checks the slope of a function and returns a boolean output whether the function is linear.
+
+FINDTRUEPEAKS.M >> eliminates little spikes and discounts neighbouring peaks; returns true peaks only.
+
+FINDVIPEAKS.M >> returns very important peaks only, i.e. the most important N peaks, where N is user-specified.
